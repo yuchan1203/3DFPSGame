@@ -11,7 +11,6 @@ public class PlayerMove : MonoBehaviour
         float v = Input.GetAxis("Vertical");
         Vector3 direction = new Vector3(h, 0f, v).normalized;
         direction = transform.TransformDirection(direction);
-        //transform.position += direction * (_moveSpeed * Time.deltaTime);
         _characterController.Move(direction * (_moveSpeed * Time.deltaTime));
     }
 }
