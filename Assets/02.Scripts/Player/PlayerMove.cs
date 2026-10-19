@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerMove : MonoBehaviour
 {
     [SerializeField] private CharacterController _characterController;
-    private float _moveSpeed = 20f;
+    [SerializeField] private float _moveSpeed = 10f;
 
     private void Awake()
     {
