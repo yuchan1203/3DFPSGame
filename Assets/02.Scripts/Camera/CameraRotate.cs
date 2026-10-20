@@ -11,7 +11,7 @@ public class CameraRotate : MonoBehaviour
     {
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
-        GameLogger.Log($"Mouse X: {mouseX}, Mouse Y: {mouseY}");
+        //GameLogger.Log($"Mouse X: {mouseX}, Mouse Y: {mouseY}");
         _accumulationX += mouseX * _rotationSpeed * Time.deltaTime;
         _accumulationY -= mouseY * _rotationSpeed * Time.deltaTime;
         _accumulationY = Mathf.Clamp(_accumulationY, -90, 90);
