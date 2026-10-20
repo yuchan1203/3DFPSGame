@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 59073612}
   - component: {fileID: 59073613}
   - component: {fileID: 59073614}
+  - component: {fileID: 59073615}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -266,6 +267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   _characterController: {fileID: 59073614}
   _moveSpeed: 5
+  _jumpPower: 5
 --- !u!143 &59073614
 CharacterController:
   m_ObjectHideFlags: 0
@@ -291,6 +293,19 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &59073615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 59073607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dafdd51a89f502d4cb46177df70b0d73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerGunFire
+  _hiteffectPrefab: {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
 --- !u!1 &249073380
 GameObject:
   m_ObjectHideFlags: 0
