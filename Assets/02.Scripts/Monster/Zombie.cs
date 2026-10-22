@@ -17,12 +17,86 @@ public enum ZombieState
 }
 public class Zombie : MonoBehaviour
 {
+    [Header("스탯")]
+    [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리 
+    [SerializeField] private float _moveSpeed = 4;
+
+    private CharacterController _controller;
+    private GameObject _player;
+    private ZombieState _state = ZombieState.Idle;
+
     private void Start()
+    {
+        _controller = GetComponent<CharacterController>();
+
+        // 게임을 시작하면 플레이어를 찾는다.
+        _player = GameObject.FindGameObjectWithTag("Player");
+    }
+
+    private void Update()
+    {
+        switch (_state)
+        {
+            case ZombieState.Idle:
+                {
+                    Idle();
+                    return;
+                }
+            case ZombieState.Trace:
+                {
+                    Trace();
+                    break;
+                }
+            case ZombieState.Comback:
+                {
+                    Comback();
+                    break;
+                }
+            case ZombieState.Attack:
+                {
+                    Attack();
+                    break;
+                }
+            case ZombieState.Hit:
+                {
+                    break;
+                }
+            case ZombieState.Death:
+                {
+                    break;
+                }
+        }
+    }
+
+    private void Idle()
+    {
+        // 대기: 제자리에서 플레이어를 기다린다.
+
+        // 플레이어와 가까워지면 Trace 상태로 전이한다.
+        float distance = Vector3.Distance(transform.position, _player.transform.position);
+        if (distance <= _detectDistance)
+        {
+            Debug.Log($"{_state} -> Trace");
+            _state = ZombieState.Trace;
+        }
+    }
+
+    private void Trace()
+    {
+        // Todo. 추격: 플레이어를 쫓아간다.
+        Vector3 direction = _player.transform.position - transform.position;
+        direction.y = 0f;
+        direction.Normalize();
+        transform.forward = direction;
+        _controller.Move(direction * _moveSpeed * Time.deltaTime);
+    }
+
+    private void Comback()
     {
 
     }
 
-    private void Update()
+    private void Attack()
     {
 
     }
