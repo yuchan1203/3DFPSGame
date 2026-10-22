@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 // FSM(유한 상태 머신) : 유한개의 상태가 있고, 상태마다 행동을 다르게 함으로써 AI를 구현하는 유명한 방법
@@ -19,11 +20,15 @@ public class Zombie : MonoBehaviour
 {
     [Header("스탯")]
     [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리 
+    [SerializeField] private float _combackDistance = 15;
+    [SerializeField] private float _attackRange = 1.5f;
+    [SerializeField] private float _attackInterval = 1.2f;
     [SerializeField] private float _moveSpeed = 4;
 
     private CharacterController _controller;
     private GameObject _player;
     private ZombieState _state = ZombieState.Idle;
+    private float _attackTimer = 0f;
 
     private void Start()
     {
@@ -40,7 +45,7 @@ public class Zombie : MonoBehaviour
             case ZombieState.Idle:
                 {
                     Idle();
-                    return;
+                    break;
                 }
             case ZombieState.Trace:
                 {
@@ -57,15 +62,23 @@ public class Zombie : MonoBehaviour
                     Attack();
                     break;
                 }
-            case ZombieState.Hit:
-                {
-                    break;
-                }
-            case ZombieState.Death:
-                {
-                    break;
-                }
         }
+    }
+
+    // 대미지를 받는다
+    public void TakeDamage(float damage)
+    {
+        // 잠깐 멈칫 하고 싶다
+        Debug.Log($"{_state} -> Hit");
+        _state = ZombieState.Hit;
+        StartCoroutine(Hit_Coroutine());
+    }
+
+    private IEnumerator Hit_Coroutine()
+    {
+        yield return new WaitForSeconds(0.3f);
+        Debug.Log($"{_state} -> Trace");
+        _state = ZombieState.Trace;
     }
 
     private void Idle()
@@ -88,7 +101,7 @@ public class Zombie : MonoBehaviour
         direction.y = 0f;
         direction.Normalize();
         transform.forward = direction;
-        _controller.Move(direction * _moveSpeed * Time.deltaTime);
+        _controller.SimpleMove(direction * _moveSpeed);
     }
 
     private void Comback()
@@ -98,6 +111,16 @@ public class Zombie : MonoBehaviour
 
     private void Attack()
     {
-
+        _attackTimer += Time.deltaTime;
+        if (_attackTimer > _attackInterval)
+        {
+            Debug.Log("플레이어를 때렸습니다");
+        }
+        float distance = Vector3.Distance(transform.position, _player.transform.position);
+        if (distance <= _detectDistance)
+        {
+            Debug.Log($"{_state} -> Trace");
+            _state = ZombieState.Trace;
+        }
     }
 }
