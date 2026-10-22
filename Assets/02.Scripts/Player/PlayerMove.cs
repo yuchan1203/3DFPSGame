@@ -29,10 +29,13 @@ public class PlayerMove : MonoBehaviour
                 Debug.LogError("CharacterController가 PlayerMove에 없습니다", this);
             }
         }
+
+        _stamina = MaxStamina;
     }
 
     private void Update()
     {
+        _stamina -= Mathf.Min(MaxStamina, _stamina + Time.deltaTime * _staminaRecovery);
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         Vector3 direction = new Vector3(h, 0f, v).normalized;
@@ -43,22 +46,25 @@ public class PlayerMove : MonoBehaviour
         }
         else
         {
-            _yVelocity = 0;
+            _yVelocity = -1f;
+            _jumpCount = 0;
         }
-        if (Input.GetButtonDown("Jump") && _characterController.isGrounded)
+        if (Input.GetButtonDown("Jump") && _jumpCount < MaxJumps && _stamina >= _jumpCost)
         {
             _yVelocity = _jumpPower;
+            _jumpCount++;
+            _stamina -= _jumpCost;
+        }
+        float requiredStamina = _sprintCost * Time.deltaTime;
+        bool isSprint = Input.GetButton("Sprint") && _stamina >= requiredStamina;
+        float currentSpeed = _moveSpeed;
+
+        if (isSprint)
+        {
+            currentSpeed = _sprintSpeed;
+            _stamina -= requiredStamina;
         }
         Vector3 velocity = direction * _moveSpeed;
-        if (Input.GetButtonDown("Shift"))
-        {
-            velocity = direction * (_moveSpeed + 5f);
-        }
-        else
-        {
-            velocity = direction * _moveSpeed;
-        }
-
         velocity.y = _yVelocity;
         _characterController.Move(velocity * Time.deltaTime);
     }
