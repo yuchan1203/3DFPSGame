@@ -20,10 +20,11 @@ public class Zombie : MonoBehaviour
 {
     [Header("스탯")]
     [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리 
-    [SerializeField] private float _combackDistance = 15;
+    [SerializeField] private float _combackDistance = 15; // 처음 자리에서 이만큼 
     [SerializeField] private float _attackRange = 1.5f;
-    [SerializeField] private float _attackInterval = 1.2f;
-    [SerializeField] private float _moveSpeed = 4;
+    [SerializeField] private float _attackInterval = 1.2f; // 공격 범위
+    [SerializeField] private float _moveSpeed = 4; // 공격 간격
+    [SerializeField] private float _health = 30; // 체력
 
     private CharacterController _controller;
     private GameObject _player;
@@ -68,10 +69,28 @@ public class Zombie : MonoBehaviour
     // 대미지를 받는다
     public void TakeDamage(float damage)
     {
-        // 잠깐 멈칫 하고 싶다
-        Debug.Log($"{_state} -> Hit");
-        _state = ZombieState.Hit;
-        StartCoroutine(Hit_Coroutine());
+        if (_state != ZombieState.Death)
+        {
+            return;
+        }
+
+        _health -= damage;
+
+        StopAllCoroutines();
+
+        if (_health > 0f)
+        {
+            // 잠깐 멈칫 하고 싶다
+            Debug.Log($"{_state} -> Hit");
+            _state = ZombieState.Hit;
+            StartCoroutine(Hit_Coroutine());
+        }
+        else
+        {
+            Debug.Log($"{_state} -> Dead");
+            _state = ZombieState.Death;
+            StartCoroutine(Death_Coroutine());
+        }
     }
 
     private IEnumerator Hit_Coroutine()
@@ -79,6 +98,13 @@ public class Zombie : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         Debug.Log($"{_state} -> Trace");
         _state = ZombieState.Trace;
+    }
+
+    private IEnumerator Death_Coroutine()
+    {
+        _controller.enabled = false;
+        yield return new WaitForSeconds(0.5f);
+        Destroy(this.gameObject);
     }
 
     private void Idle()
