@@ -83,13 +83,13 @@ public class Zombie : MonoBehaviour, IDamageAble
             //bloodSpray.transform.SetParent(transform);
             bloodSpray.transform.position = damageInfo.HitPoint;
             bloodSpray.transform.forward = damageInfo.HitNormal;
-            Debug.Log($"{_state} -> Hit");
+            // Debug.Log($"{_state} -> Hit");
             _state = ZombieState.Hit;
             StartCoroutine(Hit_Coroutine());
         }
         else
         {
-            Debug.Log($"{_state} -> Dead");
+            // Debug.Log($"{_state} -> Dead");
             _state = ZombieState.Death;
             StartCoroutine(Death_Coroutine());
         }
@@ -98,7 +98,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     private IEnumerator Hit_Coroutine()
     {
         yield return new WaitForSeconds(0.3f);
-        Debug.Log($"{_state} -> Trace");
+        // Debug.Log($"{_state} -> Trace");
         _state = ZombieState.Trace;
     }
 
@@ -116,7 +116,7 @@ public class Zombie : MonoBehaviour, IDamageAble
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance <= _detectDistance)
         {
-            Debug.Log($"{_state} -> Trace");
+            // Debug.Log($"{_state} -> Trace");
             _state = ZombieState.Trace;
         }
     }
@@ -127,14 +127,14 @@ public class Zombie : MonoBehaviour, IDamageAble
 
         if (Vector3.Distance(transform.position, _startPosition) > _comebackDistance)
         {
-            Debug.Log($"{_state} -> Comeback");
+            // Debug.Log($"{_state} -> Comeback");
             _state = ZombieState.Comeback;
             return;
         }
         if (Vector3.Distance(transform.position, _player.transform.position) <= _attackRange)
         {
             _attackTimer = 0f;
-            Debug.Log($"{_state} -> Attack");
+            // Debug.Log($"{_state} -> Attack");
             _state = ZombieState.Attack;
             return;
         }
@@ -150,7 +150,7 @@ public class Zombie : MonoBehaviour, IDamageAble
         // 처음 자리에 도착하면 Idle
         if (Vector3.Distance(transform.position, _startPosition) < 1f)
         {
-            Debug.Log($"{_state} -> Idle");
+            // Debug.Log($"{_state} -> Idle");
             _state = ZombieState.Idle;
             return;
         }
@@ -170,7 +170,7 @@ public class Zombie : MonoBehaviour, IDamageAble
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance > _detectDistance)
         {
-            Debug.Log($"{_state} -> Trace");
+            // Debug.Log($"{_state} -> Trace");
             _state = ZombieState.Trace;
         }
         else if (_attackTimer > _attackInterval)
