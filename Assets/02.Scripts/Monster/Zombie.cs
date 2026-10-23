@@ -109,9 +109,8 @@ public class Zombie : MonoBehaviour
 
     private void Idle()
     {
-        // 대기: 제자리에서 플레이어를 기다린다.
+        if (_player == null || _controller == null) return;
 
-        // 플레이어와 가까워지면 Trace 상태로 전이한다.
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance <= _detectDistance)
         {
