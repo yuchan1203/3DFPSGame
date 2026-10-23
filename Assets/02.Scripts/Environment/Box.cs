@@ -1,10 +1,58 @@
 using UnityEngine;
+using System.Collections;
 
 // todo: 공격 받으면 산산조각 나듯 부셔진다.
 public class Box : MonoBehaviour, IDamageAble
 {
+    [SerializeField] private ParticleSystem _explosionEffectPrefab;
+    [Header("스탯")]
+    [SerializeField] private float _health = 30f;
+    [SerializeField] private float _launchPower = 10f;
+    [SerializeField] private float _spinPower = 3f;
+    [SerializeField] private float _destroyDelay = 3f;
+    [SerializeField] private float _explosionRange = 2.5f;
+    [SerializeField] private float _damage = 10f;
+    [SerializeField] private float _explosionDelay = 0.2f;
+    private Rigidbody _rigidbody;
+    private void Awake()
+    {
+        _rigidbody = GetComponent<Rigidbody>();
+    }
     public void TakeDamage(DamageInfo damageInfo)
     {
-        // todo: 뭔가 해야 함 
+        if (_health <= 0)
+        {
+            return;
+        }
+        _health -= damageInfo.Value;
+        if (_health <= 0)
+        {
+            StartCoroutine(Explode_Coroutine());
+        }
+    }
+    private IEnumerator Explode_Coroutine()
+    {
+        yield return new WaitForSeconds(_explosionDelay);
+        ParticleSystem effect = Instantiate(_explosionEffectPrefab, transform.position, Quaternion.identity);
+        effect.Play();
+        _rigidbody.AddForce(Vector3.up * _launchPower, ForceMode.Impulse);
+        _rigidbody.AddTorque(UnityEngine.Random.insideUnitSphere * _spinPower, ForceMode.Impulse);
+        ApplyAreaDamage();
+        yield return new WaitForSeconds(_destroyDelay);
+        Destroy(gameObject);
+    }
+    private void ApplyAreaDamage()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, _explosionRange, LayerMask.GetMask("Drum", "Zombie"));
+        foreach (var col in colliders)
+        {
+            DamageInfo damageInfo = new()
+            {
+                Value = _damage,
+                HitPoint = col.ClosestPoint(transform.position),
+                HitNormal = (transform.position - col.ClosestPoint(transform.position)).normalized,
+            };
+            col.GetComponent<IDamageAble>()?.TakeDamage(damageInfo);
+        }
     }
 }
