@@ -16,6 +16,7 @@ public class PlayerHit : MonoBehaviour, IDamageAble
         {
             //Debug.Log("Player 사망");
             Destroy(gameObject);
+            GameManager.Instance.GameOver();
         }
         else
         {
