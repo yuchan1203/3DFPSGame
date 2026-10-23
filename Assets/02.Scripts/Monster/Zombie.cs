@@ -15,6 +15,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     [SerializeField] private float _attackInterval = 1.2f; // 공격 속도
     [SerializeField] private float _moveSpeed = 4; // 공격 간격
     [SerializeField] private float _maxHealth = 100f;
+    [SerializeField] private float _attackDamage = 10f;
     private float _health = 30; // 체력
 
     [Header("이펙트")]
@@ -172,12 +173,19 @@ public class Zombie : MonoBehaviour, IDamageAble
             Debug.Log($"{_state} -> Trace");
             _state = ZombieState.Trace;
         }
-        else
+        else if (_attackTimer > _attackInterval)
         {
-            if (_attackTimer > _attackInterval)
+            _attackTimer = 0;
+            Collider[] colliders = Physics.OverlapSphere(transform.position, _attackRange, LayerMask.GetMask("Player"));
+            foreach (var col in colliders)
             {
-                Debug.Log("플레이어를 때렸습니다");
-                _attackTimer = 0;
+                DamageInfo damageInfo = new()
+                {
+                    Value = _attackDamage,
+                    HitPoint = col.ClosestPoint(transform.position),
+                    HitNormal = (transform.position - col.ClosestPoint(transform.position)).normalized,
+                };
+                col.GetComponent<IDamageAble>()?.TakeDamage(damageInfo);
             }
         }
     }

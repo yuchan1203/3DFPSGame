@@ -11,5 +11,6 @@ public class ZombieHealthBar : MonoBehaviour
     private void LateUpdate()
     {
         _slider.value = _zombie.Health / _zombie.MaxHealth;
+        transform.forward = Camera.main.transform.forward;
     }
 }

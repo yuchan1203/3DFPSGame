@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class PlayerMove : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 5f;
@@ -19,17 +18,12 @@ public class PlayerMove : MonoBehaviour
     private int _jumpCount = 0;
     private float _stamina = 0f;
 
+    public float Stamina => _stamina;
+    public float MMaxStamina => MaxStamina;
+
     private void Awake()
     {
-        if (_characterController == null)
-        {
-            _characterController = GetComponent<CharacterController>();
-            if (_characterController == null)
-            {
-                Debug.LogError("CharacterController가 PlayerMove에 없습니다", this);
-            }
-        }
-
+        _characterController = GetComponent<CharacterController>();
         _stamina = MaxStamina;
     }
 
