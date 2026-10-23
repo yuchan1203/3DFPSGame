@@ -29,6 +29,10 @@ public class PlayerMove : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.GameState != GameState.Playing)
+        {
+            return;
+        }
         _stamina += Mathf.Min(MaxStamina, _stamina + Time.deltaTime * _staminaRecovery);
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");

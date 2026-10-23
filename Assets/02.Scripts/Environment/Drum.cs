@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-
 [RequireComponent(typeof(Rigidbody))]
 public class Drum : MonoBehaviour, IDamageAble
 {
