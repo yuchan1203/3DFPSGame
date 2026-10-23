@@ -1,8 +1,7 @@
 using UnityEngine;
-
 public class PlayerGunFire : MonoBehaviour
 {
-    [SerializeField] private ParticleSystem _hiteffectPrefab;
+    [SerializeField] private ParticleSystem _hitEffectPrefab;
     private float _range = 100f;
     private float _damage = 10f;
     private float _fireInterval = 0.1f;
@@ -24,14 +23,11 @@ public class PlayerGunFire : MonoBehaviour
         bool isHit = Physics.Raycast(ray, out hitInfo, _range);
         if (isHit)
         {
-            // 맞은 자리에 총알 자국 이펙트 만들기 
-            ParticleSystem effect = Instantiate(_hiteffectPrefab);
+            ParticleSystem effect = Instantiate(_hitEffectPrefab);
             effect.transform.position = hitInfo.point;
             effect.transform.forward = hitInfo.normal;
             effect.Play();
-            hitInfo.collider.GetComponent<Zombie>()?.TakeDamage(_damage);
-            hitInfo.collider.GetComponent<Drum>()?.TakeDamage(_damage);
-            hitInfo.collider.GetComponent<Box>()?.TakeDamage(_damage);
+            hitInfo.collider.GetComponent<IDamageAble>()?.TakeDamage(_damage);
         }
     }
 }

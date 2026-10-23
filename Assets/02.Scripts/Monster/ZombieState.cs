@@ -1,6 +1,4 @@
-﻿// 좀비가 가질 수 있는 상태
-
-public enum ZombieState
+﻿public enum ZombieState
 {
     Idle, // 대기: 제자리에서 플레이어를 기다린다
     Trace, // 추격: 플레이어를 쫒아간다

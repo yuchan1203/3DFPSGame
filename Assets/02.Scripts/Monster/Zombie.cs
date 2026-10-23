@@ -10,11 +10,14 @@ public class Zombie : MonoBehaviour, IDamageAble
 {
     [Header("스탯")]
     [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리 
-    [SerializeField] private float _combackDistance = 15; // 처음 자리에서 이만큼 
+    [SerializeField] private float _comebackDistance = 15; // 처음 자리에서 이만큼 
     [SerializeField] private float _attackRange = 1.5f;
     [SerializeField] private float _attackInterval = 1.2f; // 공격 범위
     [SerializeField] private float _moveSpeed = 4; // 공격 간격
     [SerializeField] private float _health = 30; // 체력
+
+    [Header("이펙트")]
+    [SerializeField] private ParticleSystem _bloodEffectPrefab;
 
     private CharacterController _controller;
     private GameObject _player;
@@ -24,8 +27,6 @@ public class Zombie : MonoBehaviour, IDamageAble
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
-
-        // 게임을 시작하면 플레이어를 찾는다.
         _player = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -59,7 +60,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     // 대미지를 받는다
     public void TakeDamage(float damage)
     {
-        if (_state != ZombieState.Death)
+        if (_state == ZombieState.Death)
         {
             return;
         }
@@ -70,7 +71,7 @@ public class Zombie : MonoBehaviour, IDamageAble
 
         if (_health > 0f)
         {
-            // 잠깐 멈칫 하고 싶다
+            // todo: 맞은 부위에 피 이펙트 실행 로직 
             Debug.Log($"{_state} -> Hit");
             _state = ZombieState.Hit;
             StartCoroutine(Hit_Coroutine());
@@ -112,6 +113,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     private void Trace()
     {
         // Todo. 추격: 플레이어를 쫓아간다.
+        if (_player == null || _controller == null) return;
         Vector3 direction = _player.transform.position - transform.position;
         direction.y = 0f;
         direction.Normalize();
@@ -126,6 +128,7 @@ public class Zombie : MonoBehaviour, IDamageAble
 
     private void Attack()
     {
+        if (_player == null || _controller == null) return;
         _attackTimer += Time.deltaTime;
         if (_attackTimer > _attackInterval)
         {
