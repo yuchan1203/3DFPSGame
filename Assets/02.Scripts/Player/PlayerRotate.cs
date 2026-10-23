@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class PlayerRotate : MonoBehaviour
 {
     private float _rotationSpeed = 200f;

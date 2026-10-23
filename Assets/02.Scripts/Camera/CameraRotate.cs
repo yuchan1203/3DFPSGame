@@ -6,7 +6,7 @@ public class CameraRotate : MonoBehaviour
     private float _accumulationY = 0f;
     private void Update()
     {
-        if (GameManager.Instance.GameState != GameState.Playing)
+        if (GameManager.Instance == null || GameManager.Instance.GameState != GameState.Playing)
         {
             return;
         }

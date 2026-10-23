@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         _instance = this;
+        DontDestroyOnLoad(gameObject);
     }
     private void Start()
     {

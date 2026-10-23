@@ -6,10 +6,9 @@ public class PlayerGunFire : MonoBehaviour
     private float _damage = 10f;
     private float _fireInterval = 0.1f;
     private float _fireTimer = 0f;
-
     private void Update()
     {
-        if (GameManager.Instance.GameState != GameState.Playing)
+        if (GameManager.Instance == null || GameManager.Instance.GameState != GameState.Playing)
         {
             return;
         }
@@ -18,7 +17,6 @@ public class PlayerGunFire : MonoBehaviour
             Shoot();
         }
     }
-
     private void Shoot()
     {
         Transform cameraTransform = Camera.main.transform;
