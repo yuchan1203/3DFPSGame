@@ -6,17 +6,7 @@ using UnityEngine;
 // - "전이": 조건에 따라 현재 상태에서 다른 상태로 넘어가는 것
 // - 그리고 위 방식에 따라 규칙을 세워둔 것을 "머신"
 
-// 좀비가 가질 수 있는 상태
-public enum ZombieState
-{
-    Idle, // 대기: 제자리에서 플레이어를 기다린다
-    Trace, // 추격: 플레이어를 쫒아간다
-    Comback, // 복귀: 처음 자리로 돌아간다
-    Attack, // 공격: 일정 시간마다 플레이어를 때린다
-    Hit, // 피격: 공격을 받아 잠깐 멈칫한다
-    Death, // 죽음: 쓰러지고 잠시 뒤 사라진다 
-}
-public class Zombie : MonoBehaviour
+public class Zombie : MonoBehaviour, IDamageAble
 {
     [Header("스탯")]
     [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리 
@@ -53,9 +43,9 @@ public class Zombie : MonoBehaviour
                     Trace();
                     break;
                 }
-            case ZombieState.Comback:
+            case ZombieState.Comeback:
                 {
-                    Comback();
+                    Comeback();
                     break;
                 }
             case ZombieState.Attack:
@@ -129,7 +119,7 @@ public class Zombie : MonoBehaviour
         _controller.SimpleMove(direction * _moveSpeed);
     }
 
-    private void Comback()
+    private void Comeback()
     {
 
     }

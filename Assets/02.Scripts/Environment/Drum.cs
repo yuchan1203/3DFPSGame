@@ -3,7 +3,7 @@ using UnityEngine;
 
 // 체력이 0이 되면 위로 튀어오르며 폭발하는 드럼통
 [RequireComponent(typeof(Rigidbody))]
-public class Drum : MonoBehaviour
+public class Drum : MonoBehaviour, IDamageAble
 {
     [SerializeField] private ParticleSystem _explosionEffectPrefab;
 

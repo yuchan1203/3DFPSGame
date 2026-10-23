@@ -1,14 +1,10 @@
 using UnityEngine;
 
-public class Box : MonoBehaviour
+// todo: 공격 받으면 산산조각 나듯 부셔진다.
+public class Box : MonoBehaviour, IDamageAble
 {
-    private void Start()
+    public void TakeDamage(float damage)
     {
-
-    }
-
-    private void Update()
-    {
-
+        // todo: 뭔가 해야 함 
     }
 }
