@@ -16,7 +16,13 @@ public class Bomb : MonoBehaviour
         Collider[] colliders = Physics.OverlapSphere(transform.position, _explosionRange, LayerMask.GetMask("Drum", "Zombie"));
         foreach (var col in colliders)
         {
-            col.GetComponent<IDamageAble>()?.TakeDamage(_damage);
+            DamageInfo damageInfo = new()
+            {
+                Value = _damage,
+                HitPoint = col.ClosestPoint(transform.position),
+                HitNormal = (transform.position - col.ClosestPoint(transform.position)).normalized,
+            };
+            col.GetComponent<IDamageAble>()?.TakeDamage(damageInfo);
         }
     }
 }

@@ -73,8 +73,8 @@ public class Zombie : MonoBehaviour, IDamageAble
 
         if (_health > 0f)
         {
-            // todo: 맞은 부위에 피 이펙트 실행 로직 
-            GameObject bloodSpray = Instantiate(_bloodSprayPrefab);
+            GameObject bloodSpray = Instantiate(_bloodSprayPrefab, transform);
+            //bloodSpray.transform.SetParent(transform);
             bloodSpray.transform.position = damageInfo.HitPoint;
             bloodSpray.transform.forward = damageInfo.HitNormal;
             Debug.Log($"{_state} -> Hit");
@@ -125,7 +125,6 @@ public class Zombie : MonoBehaviour, IDamageAble
             _state = ZombieState.Comeback;
             return;
         }
-
         if (Vector3.Distance(transform.position, _player.transform.position) <= _attackRange)
         {
             _attackTimer = 0f;
@@ -142,16 +141,18 @@ public class Zombie : MonoBehaviour, IDamageAble
 
     private void Comeback()
     {
-        if (_player == null || _controller == null) return;
-        if (Vector3.Distance(transform.position, _startPosition) > _comebackDistance)
+        // 처음 자리에 도착하면 Idle
+        if (Vector3.Distance(transform.position, _startPosition) < 1f)
         {
             Debug.Log($"{_state} -> Idle");
             _state = ZombieState.Idle;
             return;
         }
+        // 처음 자리로 돌아간다
         Vector3 direction = _startPosition - transform.position;
         direction.y = 0f;
         direction.Normalize();
+
         transform.forward = direction;
         _controller.SimpleMove(direction * _moveSpeed);
     }
