@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
+
 [RequireComponent(typeof(Rigidbody))]
 public class Drum : MonoBehaviour, IDamageAble
 {
@@ -17,13 +19,13 @@ public class Drum : MonoBehaviour, IDamageAble
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
-    public void TakeDamage(float damage)
+    public void TakeDamage(DamageInfo damageInfo)
     {
         if (_health <= 0)
         {
             return;
         }
-        _health -= damage;
+        _health -= damageInfo.Value;
         if (_health <= 0)
         {
             StartCoroutine(Explode_Coroutine());
@@ -45,7 +47,13 @@ public class Drum : MonoBehaviour, IDamageAble
         Collider[] colliders = Physics.OverlapSphere(transform.position, _explosionRange, LayerMask.GetMask("Drum", "Zombie"));
         foreach (var col in colliders)
         {
-            col.GetComponent<IDamageAble>()?.TakeDamage(_damage);
+            DamageInfo damageInfo = new()
+            {
+                Value = _damage,
+                HitPoint = col.ClosestPoint(transform.position),
+                HitNormal = (transform.position - col.ClosestPoint(transform.position)).normalized,
+            };
+            col.GetComponent<IDamageAble>()?.TakeDamage(damageInfo);
         }
     }
 }

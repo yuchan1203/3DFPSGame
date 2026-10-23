@@ -11,15 +11,16 @@ public class Zombie : MonoBehaviour, IDamageAble
     [Header("스탯")]
     [SerializeField] private float _detectDistance = 8; // 플레이어를 발견하는 거리 
     [SerializeField] private float _comebackDistance = 15; // 처음 자리에서 이만큼 
-    [SerializeField] private float _attackRange = 1.5f;
-    [SerializeField] private float _attackInterval = 1.2f; // 공격 범위
+    [SerializeField] private float _attackRange = 1.5f; // 공격 범위
+    [SerializeField] private float _attackInterval = 1.2f; // 공격 속도
     [SerializeField] private float _moveSpeed = 4; // 공격 간격
     [SerializeField] private float _health = 30; // 체력
 
     [Header("이펙트")]
-    [SerializeField] private ParticleSystem _bloodEffectPrefab;
+    [SerializeField] private GameObject _bloodSprayPrefab;
 
     private CharacterController _controller;
+    private Vector3 _startPosition;
     private GameObject _player;
     private ZombieState _state = ZombieState.Idle;
     private float _attackTimer = 0f;
@@ -27,6 +28,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
+        _startPosition = transform.position;
         _player = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -58,20 +60,23 @@ public class Zombie : MonoBehaviour, IDamageAble
     }
 
     // 대미지를 받는다
-    public void TakeDamage(float damage)
+    public void TakeDamage(DamageInfo damageInfo)
     {
         if (_state == ZombieState.Death)
         {
             return;
         }
 
-        _health -= damage;
+        _health -= damageInfo.Value;
 
         StopAllCoroutines();
 
         if (_health > 0f)
         {
             // todo: 맞은 부위에 피 이펙트 실행 로직 
+            GameObject bloodSpray = Instantiate(_bloodSprayPrefab);
+            bloodSpray.transform.position = damageInfo.HitPoint;
+            bloodSpray.transform.forward = damageInfo.HitNormal;
             Debug.Log($"{_state} -> Hit");
             _state = ZombieState.Hit;
             StartCoroutine(Hit_Coroutine());
@@ -112,8 +117,22 @@ public class Zombie : MonoBehaviour, IDamageAble
 
     private void Trace()
     {
-        // Todo. 추격: 플레이어를 쫓아간다.
         if (_player == null || _controller == null) return;
+
+        if (Vector3.Distance(transform.position, _startPosition) > _comebackDistance)
+        {
+            Debug.Log($"{_state} -> Comeback");
+            _state = ZombieState.Comeback;
+            return;
+        }
+
+        if (Vector3.Distance(transform.position, _player.transform.position) <= _attackRange)
+        {
+            _attackTimer = 0f;
+            Debug.Log($"{_state} -> Attack");
+            _state = ZombieState.Attack;
+            return;
+        }
         Vector3 direction = _player.transform.position - transform.position;
         direction.y = 0f;
         direction.Normalize();
@@ -123,22 +142,37 @@ public class Zombie : MonoBehaviour, IDamageAble
 
     private void Comeback()
     {
-
+        if (_player == null || _controller == null) return;
+        if (Vector3.Distance(transform.position, _startPosition) > _comebackDistance)
+        {
+            Debug.Log($"{_state} -> Idle");
+            _state = ZombieState.Idle;
+            return;
+        }
+        Vector3 direction = _startPosition - transform.position;
+        direction.y = 0f;
+        direction.Normalize();
+        transform.forward = direction;
+        _controller.SimpleMove(direction * _moveSpeed);
     }
 
     private void Attack()
     {
         if (_player == null || _controller == null) return;
         _attackTimer += Time.deltaTime;
-        if (_attackTimer > _attackInterval)
-        {
-            Debug.Log("플레이어를 때렸습니다");
-        }
         float distance = Vector3.Distance(transform.position, _player.transform.position);
-        if (distance <= _detectDistance)
+        if (distance > _detectDistance)
         {
             Debug.Log($"{_state} -> Trace");
             _state = ZombieState.Trace;
+        }
+        else
+        {
+            if (_attackTimer > _attackInterval)
+            {
+                Debug.Log("플레이어를 때렸습니다");
+                _attackTimer = 0;
+            }
         }
     }
 }

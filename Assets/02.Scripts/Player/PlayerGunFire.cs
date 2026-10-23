@@ -27,7 +27,11 @@ public class PlayerGunFire : MonoBehaviour
             effect.transform.position = hitInfo.point;
             effect.transform.forward = hitInfo.normal;
             effect.Play();
-            hitInfo.collider.GetComponent<IDamageAble>()?.TakeDamage(_damage);
+            DamageInfo damageInfo = new DamageInfo();
+            damageInfo.Value = _damage;
+            damageInfo.HitPoint = hitInfo.point;
+            damageInfo.HitNormal = hitInfo.normal;
+            hitInfo.collider.GetComponent<IDamageAble>()?.TakeDamage(damageInfo);
         }
     }
 }
