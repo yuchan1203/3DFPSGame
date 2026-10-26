@@ -1,15 +1,20 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
+using TMPro;
+
 public class PlayerGunFire : MonoBehaviour
 {
     [SerializeField] private ParticleSystem _hitEffectPrefab;
+    [SerializeField] private TextMeshProUGUI _reloadText;
+    [SerializeField] private RectTransform _crossHair;
 
     [Header("스탯")]
     [SerializeField] private float _damage = 10f;
     [SerializeField] private float _fireInterval = 0.1f;
     [SerializeField] private int _maxBulletCount = 100;
     [SerializeField] private float _reloadTime = 2f;
+    [SerializeField] private float _rotationSpeed = 360f;
 
     public int MaxBulletCount => _maxBulletCount;
     public int BulletCount => _bulletCount;
@@ -17,6 +22,12 @@ public class PlayerGunFire : MonoBehaviour
     private int _bulletCount = 10;
     private float _range = 100f;
     private float _fireTimer = 1f;
+
+    private void Start()
+    {
+        _reloadText.gameObject.SetActive(false);
+        SetZRotation(0);
+    }
 
     private void Update()
     {
@@ -39,10 +50,33 @@ public class PlayerGunFire : MonoBehaviour
             Shoot();
         }
     }
+    public void SetZRotation(float targetAngle)
+    {
+        Vector3 rotation = _crossHair.localEulerAngles;
+        rotation.z = targetAngle;
+        _crossHair.localEulerAngles = rotation;
+    }
+
+    // 현재 Z축 각도에서 추가로 회전
+    public void AddZRotation(float angleAmount)
+    {
+        _crossHair.Rotate(0, 0, angleAmount);
+    }
     private IEnumerator Reload_Coroutine()
     {
-        yield return new WaitForSeconds(_reloadTime);
+        _reloadText.gameObject.SetActive(true);
+        float elapsedTime = 0f;
+        while (elapsedTime < _reloadTime)
+        {
+            elapsedTime += Time.deltaTime;
+            float currentAngle = _crossHair.localEulerAngles.z - (_rotationSpeed * Time.deltaTime);
+            _crossHair.localEulerAngles = new Vector3(0, 0, currentAngle);
+            yield return null;
+        }
+        //yield return new WaitForSeconds(_reloadTime);
         _bulletCount = _maxBulletCount;
+        _crossHair.localEulerAngles = Vector3.zero;
+        _reloadText.gameObject.SetActive(false);
     }
     private void Shoot()
     {

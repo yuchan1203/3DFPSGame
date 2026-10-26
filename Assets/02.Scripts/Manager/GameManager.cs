@@ -25,12 +25,14 @@ public class GameManager : MonoBehaviour
     }
     private IEnumerator StartSequence_Coroutine()
     {
+        gameObject.SetActive(true);
         _stateText.color = Color.white;
         _stateText.text = "준비";
         yield return new WaitForSeconds(2f);
         _stateText.text = "시작";
         yield return new WaitForSeconds(1f);
         _stateText.text = "";
+        gameObject.SetActive(false);
         _gameState = GameState.Playing;
     }
 
