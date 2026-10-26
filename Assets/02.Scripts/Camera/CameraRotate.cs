@@ -10,6 +10,11 @@ public class CameraRotate : MonoBehaviour
         {
             return;
         }
+        // 커서가 풀려 있으면(UI를 누르는 중이면) 시선을 돌리지 않는다.
+        if (Cursor.lockState != CursorLockMode.Locked)
+        {
+            return;
+        }
         CameraMove();
     }
     private void CameraMove()

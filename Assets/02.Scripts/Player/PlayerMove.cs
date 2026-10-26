@@ -33,7 +33,7 @@ public class PlayerMove : MonoBehaviour
         {
             return;
         }
-        _stamina += Mathf.Min(MaxStamina, _stamina + Time.deltaTime * _staminaRecovery);
+        _stamina = Mathf.Min(MaxStamina, _stamina + Time.deltaTime * _staminaRecovery);
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         Vector3 direction = new Vector3(h, 0f, v).normalized;
@@ -65,5 +65,6 @@ public class PlayerMove : MonoBehaviour
         Vector3 velocity = direction * currentSpeed;
         velocity.y = _yVelocity;
         _characterController.Move(velocity * Time.deltaTime);
+        Debug.Log($"isSprint: {isSprint}, stamina: {_stamina}");
     }
 }
