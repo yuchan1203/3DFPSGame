@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
+
 public class Zombie : MonoBehaviour, IDamageAble
 {
     [Header("스탯")]
@@ -10,9 +12,13 @@ public class Zombie : MonoBehaviour, IDamageAble
     [SerializeField] private float _moveSpeed = 4;
     [SerializeField] private float _maxHealth = 100f;
     [SerializeField] private float _attackDamage = 10f;
-    private float _health = 30;
-    [Header("이펙트")]
+
+    [Header("연결")]
     [SerializeField] private GameObject _bloodSprayPrefab;
+    [SerializeField] private GameObject _damageTextPrefab;
+    [SerializeField] private Transform _textSpawnPoint;
+
+    private float _health = 30;
     private CharacterController _controller;
     private Vector3 _startPosition;
     private GameObject _player;
@@ -65,6 +71,12 @@ public class Zombie : MonoBehaviour, IDamageAble
         }
         _health -= damageInfo.Value;
         StopAllCoroutines();
+        GameObject textObj = Instantiate(_damageTextPrefab, _textSpawnPoint.position, Quaternion.identity);
+        TextMeshProUGUI tmp = textObj.GetComponent<TextMeshProUGUI>();
+        if (tmp != null)
+        {
+            tmp.text = damageInfo.Value.ToString();
+        }
         if (_health > 0f)
         {
             GameObject bloodSpray = Instantiate(_bloodSprayPrefab, transform);

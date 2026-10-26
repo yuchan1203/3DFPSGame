@@ -713,13 +713,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zombie
   _detectDistance: 8
-  _comebackDistance: 15
+  _comebackDistance: 10
   _attackRange: 1.5
   _attackInterval: 1.2
   _moveSpeed: 1
   _maxHealth: 100
   _attackDamage: 10
   _bloodSprayPrefab: {fileID: 1000013355911406, guid: d32aa916f50cac94db11e6f19821a58f, type: 3}
+  _damageTextPrefab: {fileID: 8609549471569271909, guid: 0d267e08b5b5ddf4eb574adc164801e6, type: 3}
+  _textSpawnPoint: {fileID: 6989555022610354781}
 --- !u!114 &8447273296070286544
 MonoBehaviour:
   m_ObjectHideFlags: 0
