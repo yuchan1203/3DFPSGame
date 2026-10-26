@@ -3,10 +3,13 @@ using UnityEngine.EventSystems;
 public class PlayerGunFire : MonoBehaviour
 {
     [SerializeField] private ParticleSystem _hitEffectPrefab;
+
+    [Header("스탯")]
+    [SerializeField] private float _damage = 10f;
+    [SerializeField] private float _fireInterval = 0.1f;
+
     private float _range = 100f;
-    private float _damage = 10f;
-    private float _fireInterval = 0.1f;
-    private float _fireTimer = 0f;
+    private float _fireTimer = 1f;
     private int _bulletCount = 100;
     private void Update()
     {
@@ -14,10 +17,12 @@ public class PlayerGunFire : MonoBehaviour
         {
             return;
         }
+        _fireTimer -= Time.deltaTime;
         // 2. 버튼을 누르고 있고, 마우스가 UI 위에 있지 않고, 쏠 때가 되었고, 총알이 남아 있으면 쏜다.
         bool isPointerOverUI = EventSystem.current.IsPointerOverGameObject();
         if (Input.GetButton("Fire1") && !isPointerOverUI && _fireTimer <= 0f && _bulletCount > 0)
         {
+            _fireTimer = _fireInterval;
             Shoot();
         }
     }
