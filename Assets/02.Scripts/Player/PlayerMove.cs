@@ -65,6 +65,6 @@ public class PlayerMove : MonoBehaviour
         Vector3 velocity = direction * currentSpeed;
         velocity.y = _yVelocity;
         _characterController.Move(velocity * Time.deltaTime);
-        Debug.Log($"isSprint: {isSprint}, stamina: {_stamina}");
+        //Debug.Log($"isSprint: {isSprint}, stamina: {_stamina}");
     }
 }
