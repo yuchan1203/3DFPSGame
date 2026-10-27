@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using UnityEngine.AI;
 
 public class Zombie : MonoBehaviour, IDamageAble
 {
@@ -18,8 +19,8 @@ public class Zombie : MonoBehaviour, IDamageAble
     [SerializeField] private GameObject _damageTextPrefab;
     [SerializeField] private Transform _textSpawnPoint;
 
+    private NavMeshAgent _agent;
     private float _health = 30;
-    private CharacterController _controller;
     private Vector3 _startPosition;
     private GameObject _player;
     private ZombieState _state = ZombieState.Idle;
@@ -29,7 +30,8 @@ public class Zombie : MonoBehaviour, IDamageAble
     private void Start()
     {
         _health = _maxHealth;
-        _controller = GetComponent<CharacterController>();
+        _agent = GetComponent<NavMeshAgent>();
+        _agent.speed = _moveSpeed;
         _startPosition = transform.position;
         _player = GameObject.FindGameObjectWithTag("Player");
     }
@@ -98,13 +100,12 @@ public class Zombie : MonoBehaviour, IDamageAble
     }
     private IEnumerator Death_Coroutine()
     {
-        _controller.enabled = false;
         yield return new WaitForSeconds(0.5f);
         Destroy(this.gameObject);
     }
     private void Idle()
     {
-        if (_player == null || _controller == null) return;
+        if (_player == null) return;
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance <= _detectDistance)
         {
@@ -113,7 +114,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     }
     private void Trace()
     {
-        if (_player == null || _controller == null) return;
+        if (_player == null) return;
 
         if (Vector3.Distance(transform.position, _startPosition) > _comebackDistance)
         {
@@ -126,11 +127,7 @@ public class Zombie : MonoBehaviour, IDamageAble
             _state = ZombieState.Attack;
             return;
         }
-        Vector3 direction = _player.transform.position - transform.position;
-        direction.y = 0f;
-        direction.Normalize();
-        transform.forward = direction;
-        _controller.SimpleMove(direction * _moveSpeed);
+        _agent.SetDestination(_player.transform.position);
     }
 
     private void Comeback()
@@ -140,16 +137,12 @@ public class Zombie : MonoBehaviour, IDamageAble
             _state = ZombieState.Idle;
             return;
         }
-        Vector3 direction = _startPosition - transform.position;
-        direction.y = 0f;
-        direction.Normalize();
-        transform.forward = direction;
-        _controller.SimpleMove(direction * _moveSpeed);
+        _agent.SetDestination(_startPosition);
     }
 
     private void Attack()
     {
-        if (_player == null || _controller == null) return;
+        if (_player == null) return;
         _attackTimer += Time.deltaTime;
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance > _detectDistance)
