@@ -135,7 +135,7 @@ public class Zombie : MonoBehaviour, IDamageAble
 
     private void Comeback()
     {
-        if (_agent.remainingDistance <= _agent.stoppingDistance)
+        if (!_agent.pathPending && _agent.hasPath && _agent.remainingDistance <= _agent.stoppingDistance)
         {
             _state = ZombieState.Idle;
             return;
@@ -148,13 +148,13 @@ public class Zombie : MonoBehaviour, IDamageAble
         if (_player == null) return;
         _attackTimer += Time.deltaTime;
         float distance = Vector3.Distance(transform.position, _player.transform.position);
-        Stop();
         if (distance > _detectDistance)
         {
             _state = ZombieState.Trace;
         }
         else if (_attackTimer > _attackInterval)
         {
+            Stop();
             _attackTimer = 0;
             Collider[] colliders = Physics.OverlapSphere(transform.position, _attackRange, LayerMask.GetMask("Player"));
             foreach (var col in colliders)
