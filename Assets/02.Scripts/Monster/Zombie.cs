@@ -95,17 +95,20 @@ public class Zombie : MonoBehaviour, IDamageAble
     }
     private IEnumerator Hit_Coroutine()
     {
+        Stop();
         yield return new WaitForSeconds(0.3f);
         _state = ZombieState.Trace;
     }
     private IEnumerator Death_Coroutine()
     {
+        Stop();
         yield return new WaitForSeconds(0.5f);
         Destroy(this.gameObject);
     }
     private void Idle()
     {
         if (_player == null) return;
+        Stop();
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance <= _detectDistance)
         {
@@ -132,7 +135,7 @@ public class Zombie : MonoBehaviour, IDamageAble
 
     private void Comeback()
     {
-        if (Vector3.Distance(transform.position, _startPosition) < 1f)
+        if (_agent.remainingDistance <= _agent.stoppingDistance)
         {
             _state = ZombieState.Idle;
             return;
@@ -145,6 +148,7 @@ public class Zombie : MonoBehaviour, IDamageAble
         if (_player == null) return;
         _attackTimer += Time.deltaTime;
         float distance = Vector3.Distance(transform.position, _player.transform.position);
+        Stop();
         if (distance > _detectDistance)
         {
             _state = ZombieState.Trace;
@@ -164,5 +168,11 @@ public class Zombie : MonoBehaviour, IDamageAble
                 col.GetComponent<IDamageAble>()?.TakeDamage(damageInfo);
             }
         }
+    }
+
+    private void Stop()
+    {
+        _agent.ResetPath();
+        _agent.velocity = Vector3.zero;
     }
 }
