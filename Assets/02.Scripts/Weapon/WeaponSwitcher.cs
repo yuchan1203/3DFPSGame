@@ -14,6 +14,8 @@ public class WeaponSwitcher : MonoBehaviour
     private IWeapon[] _weapons;
     private int _currentIndex = 0;
     private float _fireTimer = 0f;
+    private int _shownAmmo = -1;
+    private int _shownMaxAmmo = -1;
 
     private IWeapon CurrentWeapon => _weapons[_currentIndex];
 
@@ -93,7 +95,16 @@ public class WeaponSwitcher : MonoBehaviour
         {
             return;
         }
-        _bulletText.text = "Bullet: " + CurrentWeapon.CurrentAmmo + " / " + CurrentWeapon.MaxAmmo;
+        int ammo = CurrentWeapon.CurrentAmmo;
+        int maxAmmo = CurrentWeapon.MaxAmmo;
+        // 값이 바뀌지 않았으면 문자열을 새로 만들지 않는다.
+        if (ammo == _shownAmmo && maxAmmo == _shownMaxAmmo)
+        {
+            return;
+        }
+        _shownAmmo = ammo;
+        _shownMaxAmmo = maxAmmo;
+        _bulletText.text = "Bullet: " + ammo + " / " + maxAmmo;
     }
 
     private void Update()
@@ -111,7 +122,6 @@ public class WeaponSwitcher : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R) && CurrentWeapon.CanReload)
         {
             Reload();
-            UpdateBulletText();
         }
 
         _fireTimer -= Time.deltaTime;
@@ -128,7 +138,6 @@ public class WeaponSwitcher : MonoBehaviour
         {
             _fireTimer = CurrentWeapon.FireInterval;
             CurrentWeapon.Shoot();
-            UpdateBulletText();
         }
 
         UpdateBulletText();

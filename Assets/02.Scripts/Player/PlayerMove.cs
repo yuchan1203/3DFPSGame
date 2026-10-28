@@ -21,6 +21,8 @@ public class PlayerMove : MonoBehaviour
 
     private Animator _animator;
 
+    public event System.Action StaminaChanged;
+
     public float Stamina => _stamina;
     public float MMaxStamina => MaxStamina;
 
@@ -31,13 +33,25 @@ public class PlayerMove : MonoBehaviour
         _animator = GetComponentInChildren<Animator>();
     }
 
+    // 값이 실제로 바뀐 경우에만 UI에 알린다. (최대치에서 회복할 때는 알리지 않는다.)
+    private void SetStamina(float value)
+    {
+        float newStamina = Mathf.Clamp(value, 0f, MaxStamina);
+        if (Mathf.Approximately(newStamina, _stamina))
+        {
+            return;
+        }
+        _stamina = newStamina;
+        StaminaChanged?.Invoke();
+    }
+
     private void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.GameState != GameState.Playing)
         {
             return;
         }
-        _stamina = Mathf.Min(MaxStamina, _stamina + Time.deltaTime * _staminaRecovery);
+        SetStamina(_stamina + Time.deltaTime * _staminaRecovery);
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -81,7 +95,7 @@ public class PlayerMove : MonoBehaviour
         {
             _yVelocity = _jumpPower;
             _jumpCount++;
-            _stamina -= _jumpCost;
+            SetStamina(_stamina - _jumpCost);
         }
         float requiredStamina = _sprintCost * Time.deltaTime;
         bool isSprint = Input.GetButton("Sprint") && _stamina >= requiredStamina;
@@ -90,7 +104,7 @@ public class PlayerMove : MonoBehaviour
         if (isSprint)
         {
             currentSpeed = _sprintSpeed;
-            _stamina -= requiredStamina;
+            SetStamina(_stamina - requiredStamina);
         }
         Vector3 velocity = direction * currentSpeed;
         velocity.y = _yVelocity;

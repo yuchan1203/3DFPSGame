@@ -13,10 +13,30 @@ public class ZombieHealthBar : MonoBehaviour
             _slider = GetComponentInChildren<Slider>();
         }
     }
+    private void OnEnable()
+    {
+        _zombie.HealthChanged += Refresh;
+    }
+    private void OnDisable()
+    {
+        _zombie.HealthChanged -= Refresh;
+    }
+    private void Start()
+    {
+        Refresh();
+    }
+    private void Refresh()
+    {
+        if (_slider == null)
+        {
+            return;
+        }
+        _slider.value = _zombie.Health / _zombie.MaxHealth;
+    }
+    // 체력바가 항상 카메라를 보도록 회전은 매 프레임 갱신한다.
     private void LateUpdate()
     {
-        if (_zombie == null || _slider == null || Camera.main == null) return;
-        _slider.value = _zombie.Health / _zombie.MaxHealth;
+        if (_slider == null || Camera.main == null) return;
         _slider.transform.forward = Camera.main.transform.forward;
     }
 }

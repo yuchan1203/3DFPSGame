@@ -16,6 +16,11 @@ public class GunWeapon : MonoBehaviour, IWeapon
     [SerializeField] private float _reloadTime = 2f;
     [SerializeField] private float _rotationSpeed = 360f;
 
+    [Header("거리 비례 대미지 감소")]
+    [SerializeField] private bool _useDistanceFalloff = false;
+    [Tooltip("사거리 끝에서 적용되는 대미지 비율 (0~1)")]
+    [SerializeField, Range(0f, 1f)] private float _minDamageRatio = 0.3f;
+
     private Animator _animator;
 
     private int _bulletCount = 30;
@@ -145,7 +150,9 @@ public class GunWeapon : MonoBehaviour, IWeapon
                 effect.Play();
             }
             DamageInfo damageInfo = new DamageInfo();
-            damageInfo.Value = _damage;
+            damageInfo.Value = _useDistanceFalloff
+                ? DamageFalloff.Calculate(_damage, hitInfo.distance, _range, _minDamageRatio)
+                : _damage;
             damageInfo.HitPoint = hitInfo.point;
             damageInfo.HitNormal = hitInfo.normal;
             hitInfo.collider.GetComponent<IDamageAble>()?.TakeDamage(damageInfo);

@@ -31,6 +31,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorId = Shader.PropertyToID("_Color");
 
+    private Animator _animator;
     private MaterialPropertyBlock _propertyBlock;
     private ZombieState _appliedColorState = ZombieState.Idle;
     private NavMeshAgent _agent;
@@ -39,12 +40,18 @@ public class Zombie : MonoBehaviour, IDamageAble
     private GameObject _player;
     private ZombieState _state = ZombieState.Idle;
     private float _attackTimer = 0f;
+    public event System.Action HealthChanged;
     public float Health => _health;
     public float MaxHealth => _maxHealth;
+    private void Awake()
+    {
+        // 체력바가 Start에서 처음 값을 읽을 수 있도록 Awake에서 초기화한다.
+        _health = _maxHealth;
+    }
     private void Start()
     {
-        _health = _maxHealth;
         _agent = GetComponent<NavMeshAgent>();
+        _animator = GetComponentInChildren<Animator>();
         _agent.speed = _moveSpeed;
         _startPosition = transform.position;
         _player = GameObject.FindGameObjectWithTag("Player");
@@ -96,6 +103,7 @@ public class Zombie : MonoBehaviour, IDamageAble
             return;
         }
         _health -= damageInfo.Value;
+        HealthChanged?.Invoke();
         StopAllCoroutines();
         ShowDamageText(damageInfo.Value);
         if (_health > 0f)
@@ -182,6 +190,7 @@ public class Zombie : MonoBehaviour, IDamageAble
         if (distance <= _detectDistance)
         {
             _state = ZombieState.Trace;
+            _animator.SetTrigger("IdleToMove");
         }
     }
     private void Trace()
@@ -197,6 +206,7 @@ public class Zombie : MonoBehaviour, IDamageAble
         {
             _attackTimer = 0f;
             _state = ZombieState.Attack;
+            _animator.SetTrigger("MoveAttackDelay");
             return;
         }
         _agent.SetDestination(_player.transform.position);
@@ -209,6 +219,7 @@ public class Zombie : MonoBehaviour, IDamageAble
             // Idle 진입 시 한 번만 정지시킨다.
             Stop();
             _state = ZombieState.Idle;
+            _animator.SetTrigger("MoveToIdle");
             return;
         }
         _agent.SetDestination(_startPosition);
@@ -222,9 +233,11 @@ public class Zombie : MonoBehaviour, IDamageAble
         if (distance > _detectDistance)
         {
             _state = ZombieState.Trace;
+            _animator.SetTrigger("AttackMove");
         }
         else if (_attackTimer > _attackInterval)
         {
+            _animator.SetTrigger("StartAttack");
             Stop();
             _attackTimer = 0;
             Collider[] colliders = Physics.OverlapSphere(transform.position, _attackRange, LayerMask.GetMask("Player"));
