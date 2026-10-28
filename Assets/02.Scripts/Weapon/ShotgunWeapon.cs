@@ -1,0 +1,64 @@
+using UnityEngine;
+
+public class ShotgunWeapon : MonoBehaviour, IWeapon
+{
+    public WeaponState State => WeaponState.Shotgun;
+
+    [SerializeField] private int _maxAmmo = 5;
+    [SerializeField] private float _damage = 5f;
+    [SerializeField] private float _range = 100f;
+    [SerializeField] private float _spreadAngle = 2f;
+
+    private int _ammo;
+
+    public int CurrentAmmo => _ammo;
+    public int MaxAmmo => _maxAmmo;
+    public bool CanReload => true;
+
+    private void Awake()
+    {
+        _ammo = _maxAmmo;
+    }
+
+    public void Shoot()
+    {
+        if (_ammo <= 0)
+        {
+            return;
+        }
+        _ammo--;
+
+        CameraViewSwitcher viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
+        if (viewSwitcher != null)
+        {
+            viewSwitcher.ApplyRecoil(1f);
+        }
+
+        Camera camera = Camera.main;
+        if (camera == null)
+        {
+            return;
+        }
+
+        for (int i = -2; i <= 2; i++)
+        {
+            float yawOffset = i * _spreadAngle;
+            Vector3 direction = Quaternion.Euler(0f, yawOffset, 0f) * camera.transform.forward;
+            Ray ray = new Ray(camera.transform.position, direction);
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, _range))
+            {
+                hitInfo.collider.GetComponent<IDamageAble>()?.TakeDamage(new DamageInfo
+                {
+                    Value = _damage,
+                    HitPoint = hitInfo.point,
+                    HitNormal = hitInfo.normal
+                });
+            }
+        }
+    }
+
+    public void Reload()
+    {
+        _ammo = _maxAmmo;
+    }
+}

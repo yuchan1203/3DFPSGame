@@ -9,7 +9,7 @@ public class PlayerRotate : MonoBehaviour
 
     private void Awake()
     {
-        _viewSwitcher = FindObjectOfType<CameraViewSwitcher>();
+        _viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
     }
 
     private void Update()

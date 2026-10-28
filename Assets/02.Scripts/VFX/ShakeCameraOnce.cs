@@ -5,7 +5,7 @@ public class ShakeCameraOnce : MonoBehaviour
     private CameraViewSwitcher _viewSwitcher;
     private void Awake()
     {
-        _viewSwitcher = FindObjectOfType<CameraViewSwitcher>();
+        _viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
     }
     private void Start()
     {

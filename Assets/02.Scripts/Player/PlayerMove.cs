@@ -28,7 +28,7 @@ public class PlayerMove : MonoBehaviour
     {
         _characterController = GetComponent<CharacterController>();
         _stamina = MaxStamina;
-        _viewSwitcher = FindObjectOfType<CameraViewSwitcher>();
+        _viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
     }
 
     private void Update()
