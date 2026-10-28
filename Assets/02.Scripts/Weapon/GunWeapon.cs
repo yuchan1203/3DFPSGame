@@ -19,6 +19,7 @@ public class GunWeapon : MonoBehaviour, IWeapon
     private Animator _animator;
 
     private int _bulletCount = 30;
+    private bool _isReloading = false;
     private float _range = 100f;
 
     public int MaxBulletCount => _maxBulletCount;
@@ -35,6 +36,12 @@ public class GunWeapon : MonoBehaviour, IWeapon
         _animator = GetComponentInChildren<Animator>();
     }
 
+    private void OnDisable()
+    {
+        // 비활성화되면 코루틴이 멈추므로 재장전 상태가 남지 않게 초기화한다.
+        _isReloading = false;
+    }
+
     private void Start()
     {
         if (_reloadText != null)
@@ -46,6 +53,11 @@ public class GunWeapon : MonoBehaviour, IWeapon
 
     public void Reload()
     {
+        // 이미 재장전 중이면 코루틴을 중복 실행하지 않는다.
+        if (_isReloading == true)
+        {
+            return;
+        }
         StartCoroutine(Reload_Coroutine());
     }
 
@@ -71,6 +83,7 @@ public class GunWeapon : MonoBehaviour, IWeapon
 
     private IEnumerator Reload_Coroutine()
     {
+        _isReloading = true;
         if (_reloadText != null)
         {
             _reloadText.gameObject.SetActive(true);
@@ -95,23 +108,22 @@ public class GunWeapon : MonoBehaviour, IWeapon
         {
             _reloadText.gameObject.SetActive(false);
         }
-
-        //WeaponSwitcher.UpdateBulletText();
+        _isReloading = false;
     }
 
     public void Shoot()
     {
-        if (_bulletCount <= 0)
+        if (_isReloading == true || _bulletCount <= 0)
         {
             return;
         }
         _bulletCount--;
-        if (_animator.GetFloat("MoveMotion") == 0f)
+        if (_animator != null && _animator.GetFloat(AnimatorParams.MoveMotion) == 0f)
         {
-            _animator.SetTrigger("Attack");
+            _animator.SetTrigger(AnimatorParams.Attack);
         }
 
-        CameraViewSwitcher viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
+        CameraViewSwitcher viewSwitcher = CameraViewSwitcher.Instance;
         if (viewSwitcher != null)
         {
             viewSwitcher.ApplyRecoil(1f);

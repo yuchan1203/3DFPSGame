@@ -49,6 +49,9 @@ public class GameManager : MonoBehaviour
         _gameState = GameState.GameOver;
         _stateText.text = "게임오버";
         _stateText.color = Color.red;
-        _playerAnimator.SetFloat("MoveMotion", 0f);
+        if (_playerAnimator != null)
+        {
+            _playerAnimator.SetFloat(AnimatorParams.MoveMotion, 0f);
+        }
     }
 }

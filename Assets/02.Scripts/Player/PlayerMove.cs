@@ -19,7 +19,6 @@ public class PlayerMove : MonoBehaviour
     private int _jumpCount = 0;
     private float _stamina = 0f;
 
-    private CameraViewSwitcher _viewSwitcher;
     private Animator _animator;
 
     public float Stamina => _stamina;
@@ -29,7 +28,6 @@ public class PlayerMove : MonoBehaviour
     {
         _characterController = GetComponent<CharacterController>();
         _stamina = MaxStamina;
-        _viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
         _animator = GetComponentInChildren<Animator>();
     }
 
@@ -44,7 +42,8 @@ public class PlayerMove : MonoBehaviour
         float v = Input.GetAxis("Vertical");
 
         Vector3 direction;
-        bool isFixedView = _viewSwitcher != null && _viewSwitcher.IsFixedView == true;
+        CameraViewSwitcher viewSwitcher = CameraViewSwitcher.Instance;
+        bool isFixedView = viewSwitcher != null && viewSwitcher.IsFixedView == true;
         if (isFixedView == true)
         {
             // 고정 시점에서는 카메라 기준으로 이동 방향을 계산한다.
@@ -65,7 +64,10 @@ public class PlayerMove : MonoBehaviour
             direction = new Vector3(h, 0f, v).normalized;
             direction = transform.TransformDirection(direction);
         }
-        _animator.SetFloat("MoveMotion", direction.magnitude);
+        if (_animator != null)
+        {
+            _animator.SetFloat(AnimatorParams.MoveMotion, direction.magnitude);
+        }
         if (_characterController.isGrounded == false)
         {
             _yVelocity += Gravity * Time.deltaTime;
@@ -93,6 +95,5 @@ public class PlayerMove : MonoBehaviour
         Vector3 velocity = direction * currentSpeed;
         velocity.y = _yVelocity;
         _characterController.Move(velocity * Time.deltaTime);
-        //Debug.Log($"isSprint: {isSprint}, stamina: {_stamina}");
     }
 }

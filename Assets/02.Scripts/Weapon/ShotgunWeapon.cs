@@ -30,7 +30,7 @@ public class ShotgunWeapon : MonoBehaviour, IWeapon
         }
         _ammo--;
 
-        CameraViewSwitcher viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
+        CameraViewSwitcher viewSwitcher = CameraViewSwitcher.Instance;
         if (viewSwitcher != null)
         {
             viewSwitcher.ApplyRecoil(1f);

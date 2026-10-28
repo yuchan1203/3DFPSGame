@@ -108,7 +108,6 @@ public class Zombie : MonoBehaviour, IDamageAble
     private void Idle()
     {
         if (_player == null) return;
-        Stop();
         float distance = Vector3.Distance(transform.position, _player.transform.position);
         if (distance <= _detectDistance)
         {
@@ -137,6 +136,8 @@ public class Zombie : MonoBehaviour, IDamageAble
     {
         if (!_agent.pathPending && _agent.hasPath && _agent.remainingDistance <= _agent.stoppingDistance)
         {
+            // Idle 진입 시 한 번만 정지시킨다.
+            Stop();
             _state = ZombieState.Idle;
             return;
         }

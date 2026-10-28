@@ -4,6 +4,11 @@ using TMPro;
 
 public class CameraViewSwitcher : MonoBehaviour
 {
+    private static CameraViewSwitcher _instance = null;
+    public static CameraViewSwitcher Instance => _instance;
+
+    private static readonly int CameraStateCount = System.Enum.GetValues(typeof(CameraState)).Length;
+
     [SerializeField] private TextMeshProUGUI _viewStateText;
     [SerializeField] private Transform _target;
     [SerializeField] private CameraViewSettings[] _views;
@@ -26,23 +31,53 @@ public class CameraViewSwitcher : MonoBehaviour
 
     private bool _isTransitioning = false;
 
+    // 전환 가능한 시점 개수 (인스펙터 배열과 열거형 중 작은 쪽)
+    private int ViewCount
+    {
+        get
+        {
+            if (_views == null)
+            {
+                return 0;
+            }
+            return Mathf.Min(_views.Length, CameraStateCount);
+        }
+    }
+
     public bool IsFixedView
     {
         get
         {
-            if (_views == null || _views.Length == 0)
+            CameraViewSettings view = GetView(_currentMode);
+            if (view == null)
             {
                 return false;
             }
-            return _views[(int)_currentMode].inheritPlayerYaw == false;
+            return view.inheritPlayerYaw == false;
         }
     }
 
     private void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            GameLogger.LogWarning("CameraViewSwitcher가 씬에 둘 이상 있습니다.");
+        }
+        _instance = this;
+
         if (_target == null)
         {
-            Debug.LogError("No target assigned!");
+            GameLogger.LogError("No target assigned!");
+        }
+
+        if (ViewCount == 0)
+        {
+            GameLogger.LogError("시점 설정(_views)이 비어 있습니다.");
+        }
+        else if ((int)_currentMode >= ViewCount)
+        {
+            GameLogger.LogWarning($"{_currentMode} 시점 설정이 없어 첫 번째 시점으로 시작합니다.");
+            _currentMode = (CameraState)0;
         }
 
         if (_useFade)
@@ -51,15 +86,31 @@ public class CameraViewSwitcher : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
+    }
+
     private void Start()
     {
-        _orbitAngles = new CameraOrbitAngles(_views, _currentMode);
+        if (ViewCount > 0)
+        {
+            _orbitAngles = new CameraOrbitAngles(_views, _currentMode);
+        }
         UpdateViewStateText();
     }
 
     private void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.GameState != GameState.Playing)
+        {
+            return;
+        }
+
+        if (_orbitAngles == null)
         {
             return;
         }
@@ -87,12 +138,11 @@ public class CameraViewSwitcher : MonoBehaviour
             return;
         }
 
-        if (_views == null || _views.Length == 0)
+        CameraViewSettings view = GetView(_currentMode);
+        if (view == null || _orbitAngles == null)
         {
             return;
         }
-
-        CameraViewSettings view = _views[(int)_currentMode];
 
         Vector3 targetPosition;
         Quaternion targetRotation;
@@ -137,13 +187,25 @@ public class CameraViewSwitcher : MonoBehaviour
 
     private CameraState NextMode(CameraState current)
     {
-        int nextIndex = ((int)current + 1) % System.Enum.GetValues(typeof(CameraState)).Length;
+        // 인스펙터에 설정된 시점까지만 순환한다.
+        int nextIndex = ((int)current + 1) % ViewCount;
         return (CameraState)nextIndex;
+    }
+
+    private CameraViewSettings GetView(CameraState mode)
+    {
+        int index = (int)mode;
+        if (index < 0 || index >= ViewCount)
+        {
+            return null;
+        }
+        return _views[index];
     }
 
     private bool IsOrbitView(CameraState mode)
     {
-        return _views[(int)mode].inheritPlayerYaw;
+        CameraViewSettings view = GetView(mode);
+        return view != null && view.inheritPlayerYaw;
     }
 
     private void SwitchTo(CameraState next)
