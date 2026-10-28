@@ -11,6 +11,7 @@ public class GunWeapon : MonoBehaviour, IWeapon
 
     [Header("스탯")]
     [SerializeField] private float _damage = 10f;
+    [SerializeField] private float _fireInterval = 0.1f;
     [SerializeField] private int _maxBulletCount = 30;
     [SerializeField] private float _reloadTime = 2f;
     [SerializeField] private float _rotationSpeed = 360f;
@@ -25,6 +26,7 @@ public class GunWeapon : MonoBehaviour, IWeapon
     public int CurrentAmmo => _bulletCount;
     public int MaxAmmo => _maxBulletCount;
     public bool CanReload => true;
+    public float FireInterval => _fireInterval;
 
     private void Start()
     {
@@ -86,6 +88,8 @@ public class GunWeapon : MonoBehaviour, IWeapon
         {
             _reloadText.gameObject.SetActive(false);
         }
+
+        //WeaponSwitcher.UpdateBulletText();
     }
 
     public void Shoot()

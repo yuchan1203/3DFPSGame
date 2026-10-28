@@ -8,12 +8,14 @@ public class ShotgunWeapon : MonoBehaviour, IWeapon
     [SerializeField] private float _damage = 5f;
     [SerializeField] private float _range = 100f;
     [SerializeField] private float _spreadAngle = 2f;
+    [SerializeField] private float _fireInterval = 0.5f;
 
     private int _ammo;
 
     public int CurrentAmmo => _ammo;
     public int MaxAmmo => _maxAmmo;
     public bool CanReload => true;
+    public float FireInterval => _fireInterval;
 
     private void Awake()
     {

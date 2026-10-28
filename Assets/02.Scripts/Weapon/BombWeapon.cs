@@ -7,12 +7,14 @@ public class BombWeapon : MonoBehaviour, IWeapon
     [SerializeField] private int _maxCount = 5;
     [SerializeField] private float _throwForce = 12f;
     [SerializeField] private float _upForce = 4f;
+    [SerializeField] private float _fireInterval = 0.8f;
 
     private int _count;
 
     public int CurrentAmmo => _count;
     public int MaxAmmo => _maxCount;
     public bool CanReload => false;
+    public float FireInterval => _fireInterval;
 
     private void Awake()
     {

@@ -8,7 +8,6 @@ public class WeaponSwitcher : MonoBehaviour
     [SerializeField] private ShotgunWeapon _shotgun;
     [SerializeField] private BombWeapon _bomb;
 
-    [SerializeField] private float _fireInterval = 0.1f;
     [SerializeField] private TextMeshProUGUI _weaponStateText;
     [SerializeField] private TextMeshProUGUI _bulletText;
 
@@ -105,9 +104,11 @@ public class WeaponSwitcher : MonoBehaviour
         bool isPointerOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         if (Input.GetButton("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
         {
-            _fireTimer = _fireInterval;
+            _fireTimer = CurrentWeapon.FireInterval;
             CurrentWeapon.Shoot();
             UpdateBulletText();
         }
+
+        UpdateBulletText();
     }
 }
