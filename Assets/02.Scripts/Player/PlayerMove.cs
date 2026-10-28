@@ -20,6 +20,7 @@ public class PlayerMove : MonoBehaviour
     private float _stamina = 0f;
 
     private CameraViewSwitcher _viewSwitcher;
+    private Animator _animator;
 
     public float Stamina => _stamina;
     public float MMaxStamina => MaxStamina;
@@ -29,6 +30,7 @@ public class PlayerMove : MonoBehaviour
         _characterController = GetComponent<CharacterController>();
         _stamina = MaxStamina;
         _viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
+        _animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -63,7 +65,7 @@ public class PlayerMove : MonoBehaviour
             direction = new Vector3(h, 0f, v).normalized;
             direction = transform.TransformDirection(direction);
         }
-
+        _animator.SetFloat("MoveMotion", direction.magnitude);
         if (_characterController.isGrounded == false)
         {
             _yVelocity += Gravity * Time.deltaTime;

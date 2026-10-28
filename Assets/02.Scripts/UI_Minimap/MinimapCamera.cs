@@ -8,6 +8,10 @@ public class MinimapCamera : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (_target == null)
+        {
+            return;
+        }
         // 1. 대상의 머리 위로 옮긴다.
         transform.position = _target.position + Vector3.up * _height;
 

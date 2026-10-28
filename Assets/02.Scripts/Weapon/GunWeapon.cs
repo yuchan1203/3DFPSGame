@@ -16,6 +16,8 @@ public class GunWeapon : MonoBehaviour, IWeapon
     [SerializeField] private float _reloadTime = 2f;
     [SerializeField] private float _rotationSpeed = 360f;
 
+    private Animator _animator;
+
     private int _bulletCount = 30;
     private float _range = 100f;
 
@@ -27,6 +29,11 @@ public class GunWeapon : MonoBehaviour, IWeapon
     public int MaxAmmo => _maxBulletCount;
     public bool CanReload => true;
     public float FireInterval => _fireInterval;
+
+    private void Awake()
+    {
+        _animator = GetComponentInChildren<Animator>();
+    }
 
     private void Start()
     {
@@ -99,6 +106,10 @@ public class GunWeapon : MonoBehaviour, IWeapon
             return;
         }
         _bulletCount--;
+        if (_animator.GetFloat("MoveMotion") == 0f)
+        {
+            _animator.SetTrigger("Attack");
+        }
 
         CameraViewSwitcher viewSwitcher = FindAnyObjectByType<CameraViewSwitcher>();
         if (viewSwitcher != null)

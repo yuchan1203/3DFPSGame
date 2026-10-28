@@ -8,7 +8,10 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance => _instance;
     private GameState _gameState = GameState.Ready;
     public GameState GameState => _gameState;
+
     [SerializeField] private TextMeshProUGUI _stateText;
+    [SerializeField] private Animator _playerAnimator;
+
     private void Awake()
     {
         if (_instance != null)
@@ -42,8 +45,10 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        _stateText.gameObject.SetActive(true);
         _gameState = GameState.GameOver;
         _stateText.text = "게임오버";
         _stateText.color = Color.red;
+        _playerAnimator.SetFloat("MoveMotion", 0f);
     }
 }
