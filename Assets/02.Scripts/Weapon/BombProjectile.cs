@@ -6,8 +6,35 @@ public class BombProjectile : MonoBehaviour
     [SerializeField] private float _explosionRange = 4.5f;
     [SerializeField] private float _damage = 100f;
 
+    private bool _useFuse;
+    private bool _exploded;
+
+    public void Setup(bool useFuse, float fuseTime)
+    {
+        _useFuse = useFuse;
+        if (_useFuse)
+        {
+            Invoke(nameof(Explode), fuseTime);
+        }
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
+        if (_useFuse)
+        {
+            return;
+        }
+        Explode();
+    }
+
+    private void Explode()
+    {
+        if (_exploded)
+        {
+            return;
+        }
+        _exploded = true;
+
         if (_explosionEffectPrefab != null)
         {
             ParticleSystem effect = Instantiate(_explosionEffectPrefab, transform.position, Quaternion.identity);

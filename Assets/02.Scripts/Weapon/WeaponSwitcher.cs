@@ -57,8 +57,22 @@ public class WeaponSwitcher : MonoBehaviour
         CurrentWeapon.Reload();
     }
 
+    private void HandleBombCharge(bool isPointerOverUI)
+    {
+        if (Input.GetButtonDown("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
+        {
+            _bomb.BeginCharge();
+        }
+        _bomb.UpdateCharge(Time.deltaTime);
+        if (Input.GetButtonUp("Fire1") && _bomb.ReleaseCharge())
+        {
+            _fireTimer = _bomb.FireInterval;
+        }
+    }
+
     public void ChangeWeapon()
     {
+        _bomb.CancelCharge();
         _currentIndex = (_currentIndex + 1) % _weapons.Length;
         UpdateWeaponStateText();
         UpdateBulletText();
@@ -102,6 +116,14 @@ public class WeaponSwitcher : MonoBehaviour
 
         _fireTimer -= Time.deltaTime;
         bool isPointerOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+
+        if (CurrentWeapon == _bomb && _bomb.UseCharge)
+        {
+            HandleBombCharge(isPointerOverUI);
+            UpdateBulletText();
+            return;
+        }
+
         if (Input.GetButton("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
         {
             _fireTimer = CurrentWeapon.FireInterval;
