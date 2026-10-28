@@ -4,6 +4,11 @@ public class BombWeapon : MonoBehaviour, IWeapon
 {
     public WeaponState State => WeaponState.Bomb;
 
+    [Header("프리팹")]
+    [Tooltip("구체 모양의 bomb 프리팹 (BombProjectile에 Explosion 이펙트를 지정)")]
+    [SerializeField] private GameObject _bombPrefab;
+
+    [Header("스탯")]
     [SerializeField] private int _maxCount = 5;
     [SerializeField] private float _throwForce = 12f;
     [SerializeField] private float _upForce = 4f;
@@ -35,17 +40,27 @@ public class BombWeapon : MonoBehaviour, IWeapon
             return;
         }
 
-        GameObject bombObject = new GameObject("Bomb");
-        bombObject.transform.position = camera.transform.position + camera.transform.forward * 1f;
-        bombObject.transform.rotation = Quaternion.identity;
+        if (_bombPrefab == null)
+        {
+            GameLogger.LogWarning("BombWeapon: 폭탄 프리팹이 지정되지 않았습니다.");
+            return;
+        }
 
-        SphereCollider collider = bombObject.AddComponent<SphereCollider>();
-        collider.radius = 0.2f;
+        GameObject bombObject = Instantiate(
+            _bombPrefab,
+            camera.transform.position + camera.transform.forward * 1f,
+            Quaternion.identity);
 
-        Rigidbody rigidbody = bombObject.AddComponent<Rigidbody>();
+        if (!bombObject.TryGetComponent(out Rigidbody rigidbody))
+        {
+            rigidbody = bombObject.AddComponent<Rigidbody>();
+        }
         rigidbody.linearVelocity = camera.transform.forward * _throwForce + Vector3.up * _upForce;
 
-        bombObject.AddComponent<BombProjectile>();
+        if (!bombObject.TryGetComponent(out BombProjectile _))
+        {
+            bombObject.AddComponent<BombProjectile>();
+        }
     }
 
     public void Reload()

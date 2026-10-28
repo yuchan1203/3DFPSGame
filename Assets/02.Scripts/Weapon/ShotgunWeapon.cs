@@ -4,6 +4,11 @@ public class ShotgunWeapon : MonoBehaviour, IWeapon
 {
     public WeaponState State => WeaponState.Shotgun;
 
+    [Header("이펙트")]
+    [Tooltip("탄도 5개 각각의 도착 지점에 재생할 이펙트 (왼쪽 → 오른쪽 순서)")]
+    [SerializeField] private ParticleSystem[] _hitEffectPrefabs = new ParticleSystem[5];
+
+    [Header("스탯")]
     [SerializeField] private int _maxAmmo = 5;
     [SerializeField] private float _damage = 5f;
     [SerializeField] private float _range = 100f;
@@ -49,6 +54,7 @@ public class ShotgunWeapon : MonoBehaviour, IWeapon
             Ray ray = new Ray(camera.transform.position, direction);
             if (Physics.Raycast(ray, out RaycastHit hitInfo, _range))
             {
+                PlayHitEffect(i + 2, hitInfo);
                 hitInfo.collider.GetComponent<IDamageAble>()?.TakeDamage(new DamageInfo
                 {
                     Value = _damage,
@@ -57,6 +63,18 @@ public class ShotgunWeapon : MonoBehaviour, IWeapon
                 });
             }
         }
+    }
+
+    private void PlayHitEffect(int index, RaycastHit hitInfo)
+    {
+        if (index < 0 || index >= _hitEffectPrefabs.Length || _hitEffectPrefabs[index] == null)
+        {
+            return;
+        }
+        ParticleSystem effect = Instantiate(_hitEffectPrefabs[index]);
+        effect.transform.position = hitInfo.point;
+        effect.transform.forward = hitInfo.normal;
+        effect.Play();
     }
 
     public void Reload()
