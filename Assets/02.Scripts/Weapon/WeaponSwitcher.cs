@@ -117,7 +117,7 @@ public class WeaponSwitcher : MonoBehaviour
         _fireTimer -= Time.deltaTime;
         bool isPointerOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
 
-        if (CurrentWeapon == _bomb && _bomb.UseCharge)
+        if (ReferenceEquals(CurrentWeapon, _bomb) && _bomb.UseCharge)
         {
             HandleBombCharge(isPointerOverUI);
             UpdateBulletText();

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4066378762009425004}
   - component: {fileID: 5158230068624649300}
   - component: {fileID: -7509965717244580219}
+  - component: {fileID: -6755443469264448308}
   m_Layer: 0
   m_Name: Damage
   m_TagString: Untagged
@@ -196,3 +197,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Mover
   _moveSpeed: 4
   _duration: 1
+--- !u!114 &-6755443469264448308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609549471569271909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 503d9e9e9dde1d74e9214741d6681ac7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard

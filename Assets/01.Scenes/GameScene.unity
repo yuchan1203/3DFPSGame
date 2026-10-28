@@ -585,7 +585,7 @@ MonoBehaviour:
   _maxAmmo: 5
   _damage: 5
   _range: 100
-  _spreadAngle: 2
+  _spreadAngle: 5
   _fireInterval: 0.5
 --- !u!114 &59073620
 MonoBehaviour:
@@ -604,6 +604,12 @@ MonoBehaviour:
   _throwForce: 12
   _upForce: 4
   _fireInterval: 0.8
+  _useCharge: 1
+  _maxChargeTime: 1.5
+  _minForceMultiplier: 0.5
+  _maxForceMultiplier: 2
+  _useFuse: 1
+  _fuseTime: 3
 --- !u!114 &59073621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2544,15 +2550,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.83
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.83
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6989555022610354781, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_LocalPosition.x

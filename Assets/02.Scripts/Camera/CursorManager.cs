@@ -1,6 +1,8 @@
 using UnityEngine;
 public class CursorManager : MonoBehaviour
 {
+    private bool _wasPaused;
+
     private void Awake()
     {
         LockCursor();
@@ -17,8 +19,27 @@ public class CursorManager : MonoBehaviour
     }
     private void Update()
     {
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
+
+        // 일시정지 중에는 커서를 보여 주고, 해제되면 다시 잠근다.
+        GameState state = GameManager.Instance.GameState;
+        if (state == GameState.Pause)
+        {
+            _wasPaused = true;
+            UnlockCursor();
+            return;
+        }
+        if (_wasPaused)
+        {
+            _wasPaused = false;
+            LockCursor();
+        }
+
         // 게임 중이 아니면 커서를 건드리지 않는다.
-        if (GameManager.Instance.GameState != GameState.Playing)
+        if (state != GameState.Playing)
         {
             return;
         }

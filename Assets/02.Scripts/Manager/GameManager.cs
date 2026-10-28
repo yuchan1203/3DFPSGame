@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,8 +20,54 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        // 씬을 다시 불러올 때 상태와 UI 참조가 새로 초기화되도록 DontDestroyOnLoad를 쓰지 않는다.
         _instance = this;
-        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+            Time.timeScale = 1f;
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            TogglePause();
+        }
+        else if (Input.GetKeyDown(KeyCode.R) && _gameState == GameState.GameOver)
+        {
+            Restart();
+        }
+    }
+
+    private void TogglePause()
+    {
+        if (_gameState == GameState.Playing)
+        {
+            _gameState = GameState.Pause;
+            Time.timeScale = 0f;
+            _stateText.gameObject.SetActive(true);
+            _stateText.color = Color.white;
+            _stateText.text = "일시정지";
+        }
+        else if (_gameState == GameState.Pause)
+        {
+            _gameState = GameState.Playing;
+            Time.timeScale = 1f;
+            _stateText.text = "";
+            _stateText.gameObject.SetActive(false);
+        }
+    }
+
+    private void Restart()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     private void Start()
     {

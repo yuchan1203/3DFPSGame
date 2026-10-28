@@ -19,6 +19,20 @@ public class Zombie : MonoBehaviour, IDamageAble
     [SerializeField] private GameObject _damageTextPrefab;
     [SerializeField] private Transform _textSpawnPoint;
 
+    [Header("상태별 몸 색 (Idle은 원래 색 유지)")]
+    [Tooltip("비워 두면 자식의 SkinnedMeshRenderer/MeshRenderer를 자동으로 찾는다")]
+    [SerializeField] private Renderer[] _bodyRenderers;
+    [SerializeField] private Color _traceColor = Color.green;
+    [SerializeField] private Color _comebackColor = Color.cyan;
+    [SerializeField] private Color _attackColor = new Color(1f, 0.5f, 0f);
+    [SerializeField] private Color _hitColor = Color.red;
+    [SerializeField] private Color _deathColor = Color.gray;
+
+    private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+    private static readonly int ColorId = Shader.PropertyToID("_Color");
+
+    private MaterialPropertyBlock _propertyBlock;
+    private ZombieState _appliedColorState = ZombieState.Idle;
     private NavMeshAgent _agent;
     private float _health = 30;
     private Vector3 _startPosition;
@@ -34,9 +48,19 @@ public class Zombie : MonoBehaviour, IDamageAble
         _agent.speed = _moveSpeed;
         _startPosition = transform.position;
         _player = GameObject.FindGameObjectWithTag("Player");
+
+        _propertyBlock = new MaterialPropertyBlock();
+        if (_bodyRenderers == null || _bodyRenderers.Length == 0)
+        {
+            _bodyRenderers = GetComponentsInChildren<Renderer>();
+        }
     }
     private void Update()
     {
+        if (_state != _appliedColorState)
+        {
+            ApplyStateColor();
+        }
         if (GameManager.Instance == null || GameManager.Instance.GameState != GameState.Playing)
         {
             return;
@@ -73,12 +97,7 @@ public class Zombie : MonoBehaviour, IDamageAble
         }
         _health -= damageInfo.Value;
         StopAllCoroutines();
-        GameObject textObj = Instantiate(_damageTextPrefab, _textSpawnPoint.position, Quaternion.identity);
-        TextMeshProUGUI tmp = textObj.GetComponent<TextMeshProUGUI>();
-        if (tmp != null)
-        {
-            tmp.text = damageInfo.Value.ToString();
-        }
+        ShowDamageText(damageInfo.Value);
         if (_health > 0f)
         {
             GameObject bloodSpray = Instantiate(_bloodSprayPrefab, transform);
@@ -93,6 +112,57 @@ public class Zombie : MonoBehaviour, IDamageAble
             StartCoroutine(Death_Coroutine());
         }
     }
+    private void ApplyStateColor()
+    {
+        _appliedColorState = _state;
+        foreach (Renderer bodyRenderer in _bodyRenderers)
+        {
+            if (bodyRenderer == null)
+            {
+                continue;
+            }
+            if (_state == ZombieState.Idle)
+            {
+                // 프로퍼티 블록을 비워 머티리얼의 원래 색으로 되돌린다.
+                bodyRenderer.SetPropertyBlock(null);
+                continue;
+            }
+            Color color = GetStateColor(_state);
+            bodyRenderer.GetPropertyBlock(_propertyBlock);
+            _propertyBlock.SetColor(BaseColorId, color);
+            _propertyBlock.SetColor(ColorId, color);
+            bodyRenderer.SetPropertyBlock(_propertyBlock);
+        }
+    }
+
+    private Color GetStateColor(ZombieState state)
+    {
+        return state switch
+        {
+            ZombieState.Trace => _traceColor,
+            ZombieState.Comeback => _comebackColor,
+            ZombieState.Attack => _attackColor,
+            ZombieState.Hit => _hitColor,
+            ZombieState.Death => _deathColor,
+            _ => Color.white,
+        };
+    }
+
+    private void ShowDamageText(float damage)
+    {
+        if (_damageTextPrefab == null || _textSpawnPoint == null)
+        {
+            return;
+        }
+        GameObject textObj = Instantiate(_damageTextPrefab, _textSpawnPoint.position, Quaternion.identity);
+        // 3D TextMeshPro(TextMeshPro)와 UI용(TextMeshProUGUI) 모두 TMP_Text를 상속한다.
+        TMP_Text tmp = textObj.GetComponentInChildren<TMP_Text>();
+        if (tmp != null)
+        {
+            tmp.text = Mathf.RoundToInt(damage).ToString();
+        }
+    }
+
     private IEnumerator Hit_Coroutine()
     {
         Stop();
