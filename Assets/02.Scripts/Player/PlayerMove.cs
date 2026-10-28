@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class PlayerMove : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 5f;
@@ -18,6 +19,8 @@ public class PlayerMove : MonoBehaviour
     private int _jumpCount = 0;
     private float _stamina = 0f;
 
+    private CameraViewSwitcher _viewSwitcher;
+
     public float Stamina => _stamina;
     public float MMaxStamina => MaxStamina;
 
@@ -25,6 +28,7 @@ public class PlayerMove : MonoBehaviour
     {
         _characterController = GetComponent<CharacterController>();
         _stamina = MaxStamina;
+        _viewSwitcher = FindObjectOfType<CameraViewSwitcher>();
     }
 
     private void Update()
@@ -36,8 +40,30 @@ public class PlayerMove : MonoBehaviour
         _stamina = Mathf.Min(MaxStamina, _stamina + Time.deltaTime * _staminaRecovery);
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
-        Vector3 direction = new Vector3(h, 0f, v).normalized;
-        direction = transform.TransformDirection(direction);
+
+        Vector3 direction;
+        bool isFixedView = _viewSwitcher != null && _viewSwitcher.IsFixedView == true;
+        if (isFixedView == true)
+        {
+            // 고정 시점에서는 카메라 기준으로 이동 방향을 계산한다.
+            Camera mainCamera = Camera.main;
+            if (mainCamera != null)
+            {
+                Vector3 forward = Vector3.ProjectOnPlane(mainCamera.transform.forward, Vector3.up).normalized;
+                Vector3 right = Vector3.ProjectOnPlane(mainCamera.transform.right, Vector3.up).normalized;
+                direction = (right * h + forward * v).normalized;
+            }
+            else
+            {
+                direction = new Vector3(h, 0f, v).normalized;
+            }
+        }
+        else
+        {
+            direction = new Vector3(h, 0f, v).normalized;
+            direction = transform.TransformDirection(direction);
+        }
+
         if (_characterController.isGrounded == false)
         {
             _yVelocity += Gravity * Time.deltaTime;

@@ -1,12 +1,25 @@
 using UnityEngine;
+
 public class PlayerRotate : MonoBehaviour
 {
     private float _rotationSpeed = 200f;
     private float _accumulationX = 0f;
 
+    private CameraViewSwitcher _viewSwitcher;
+
+    private void Awake()
+    {
+        _viewSwitcher = FindObjectOfType<CameraViewSwitcher>();
+    }
+
     private void Update()
     {
-        if (GameManager.Instance.GameState != GameState.Playing)
+        if (GameManager.Instance == null || GameManager.Instance.GameState != GameState.Playing)
+        {
+            return;
+        }
+        // 고정 시점에서는 플레이어를 마우스로 회전시키지 않는다.
+        if (_viewSwitcher != null && _viewSwitcher.IsFixedView == true)
         {
             return;
         }

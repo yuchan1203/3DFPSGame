@@ -23,10 +23,22 @@ public class PlayerGunFire : MonoBehaviour
     private float _range = 100f;
     private float _fireTimer = 1f;
 
+    private CameraViewSwitcher _viewSwitcher;
+
+    private void Awake()
+    {
+        _viewSwitcher = FindObjectOfType<CameraViewSwitcher>();
+    }
+
     private void Start()
     {
         _reloadText.gameObject.SetActive(false);
         SetZRotation(0);
+    }
+
+    public void Reload()
+    {
+        StartCoroutine(Reload_Coroutine());
     }
 
     private void Update()
@@ -38,7 +50,7 @@ public class PlayerGunFire : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R) && _maxBulletCount != _bulletCount)
         {
-            StartCoroutine(Reload_Coroutine());
+            Reload();
         }
         _fireTimer -= Time.deltaTime;
         // 2. 버튼을 누르고 있고, 마우스가 UI 위에 있지 않고, 쏠 때가 되었고, 총알이 남아 있으면 쏜다.
