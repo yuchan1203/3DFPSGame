@@ -21,6 +21,10 @@ public class Zombie : MonoBehaviour, IDamageAble
     [SerializeField] private float _attackRecoverTime = 0.5f;
     [Tooltip("피격 애니메이션 동안 멈춰 있는 시간(초). Hit → Move 전이 시점과 맞춘다")]
     [SerializeField] private float _hitDuration = 1.2f;
+    [Tooltip("쓰러지는 애니메이션 길이(초). Death 상태 클립 길이와 맞춘다")]
+    [SerializeField] private float _deathAnimationTime = 1.4f;
+    [Tooltip("다 쓰러진 뒤 사라지기까지 기다리는 시간(초)")]
+    [SerializeField] private float _corpseRemainTime = 1f;
 
     [Header("연결")]
     [SerializeField] private GameObject _bloodSprayPrefab;
@@ -185,12 +189,7 @@ public class Zombie : MonoBehaviour, IDamageAble
     private IEnumerator Hit_Coroutine()
     {
         Stop();
-        // 이전 상태에서 남은 트리거가 피격 이후에 발동하지 않도록 비운다.
-        _animator.ResetTrigger("IdleToMove");
-        _animator.ResetTrigger("MoveToIdle");
-        _animator.ResetTrigger("MoveAttackDelay");
-        _animator.ResetTrigger("StartAttack");
-        _animator.ResetTrigger("AttackMove");
+        ResetActionTriggers();
         _animator.SetTrigger("Hit");
         yield return new WaitForSeconds(_hitDuration);
         _state = ZombieState.Trace;
@@ -198,8 +197,27 @@ public class Zombie : MonoBehaviour, IDamageAble
     private IEnumerator Death_Coroutine()
     {
         Stop();
-        yield return new WaitForSeconds(0.5f);
+        // 쓰러진 몸은 더 이상 길을 막거나 공격에 맞지 않는다.
+        _agent.enabled = false;
+        foreach (Collider bodyCollider in GetComponentsInChildren<Collider>())
+        {
+            bodyCollider.enabled = false;
+        }
+        ResetActionTriggers();
+        _animator.ResetTrigger("Hit");
+        _animator.SetTrigger("Death");
+        yield return new WaitForSeconds(_deathAnimationTime + _corpseRemainTime);
         Destroy(this.gameObject);
+    }
+
+    // 이전 상태에서 남은 트리거가 피격·사망 이후에 발동하지 않도록 비운다.
+    private void ResetActionTriggers()
+    {
+        _animator.ResetTrigger("IdleToMove");
+        _animator.ResetTrigger("MoveToIdle");
+        _animator.ResetTrigger("MoveAttackDelay");
+        _animator.ResetTrigger("StartAttack");
+        _animator.ResetTrigger("AttackMove");
     }
     private void Idle()
     {
