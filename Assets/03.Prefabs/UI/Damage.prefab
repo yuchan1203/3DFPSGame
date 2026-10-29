@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5158230068624649300}
   - component: {fileID: -7509965717244580219}
   - component: {fileID: -6755443469264448308}
+  - component: {fileID: 1888072381474172545}
   m_Layer: 0
   m_Name: Damage
   m_TagString: Untagged
@@ -64,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 555967915455828331, guid: 294c101ce6d20e248a158de327eeab1a, type: 2}
+  - {fileID: -1280327725210230909, guid: 5f13bbe1211f7b346b0cea885153eb3d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -111,7 +112,7 @@ MonoBehaviour:
   m_text: 10
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5f13bbe1211f7b346b0cea885153eb3d, type: 2}
-  m_sharedMaterial: {fileID: 555967915455828331, guid: 294c101ce6d20e248a158de327eeab1a, type: 2}
+  m_sharedMaterial: {fileID: -1280327725210230909, guid: 5f13bbe1211f7b346b0cea885153eb3d, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -209,3 +210,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 503d9e9e9dde1d74e9214741d6681ac7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Billboard
+--- !u!114 &1888072381474172545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609549471569271909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c08095ef294cf6419ad4bd4e11ed799, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageTextEffect
+  _horizontalSpread: 0.5
+  _verticalSpread: 0.3
+  _startScale: 0.6
+  _endScale: 1.5
+  _growDuration: 1
