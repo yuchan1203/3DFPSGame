@@ -21,6 +21,10 @@ public class CameraViewSwitcher : MonoBehaviour
     [SerializeField] private float _recoilYawAmount = 1f;
     [SerializeField] private float _recoilRecoverySpeed = 8f;
 
+    [Header("조준")]
+    [Tooltip("조준 시 FOV가 목표값으로 바뀌는 속도")]
+    [SerializeField] private float _aimSpeed = 10f;
+
     [Header("Fade")]
     [SerializeField] private bool _useFade = false;
     [SerializeField] private float _fadeDuration = 0.5f;
@@ -28,6 +32,9 @@ public class CameraViewSwitcher : MonoBehaviour
     private CameraOrbitAngles _orbitAngles;
     private readonly CameraRecoil _recoil = new CameraRecoil();
     private CameraScreenFader _fader;
+    private Camera _camera;
+    private float _baseFieldOfView;
+    private float _aimMultiplier = 1f;
 
     private bool _isTransitioning = false;
 
@@ -83,6 +90,12 @@ public class CameraViewSwitcher : MonoBehaviour
         if (_useFade)
         {
             _fader = new CameraScreenFader(transform);
+        }
+
+        _camera = GetComponent<Camera>();
+        if (_camera != null)
+        {
+            _baseFieldOfView = _camera.fieldOfView;
         }
     }
 
@@ -159,6 +172,24 @@ public class CameraViewSwitcher : MonoBehaviour
 
         transform.position = targetPosition;
         transform.rotation = targetRotation;
+
+        UpdateAim();
+    }
+
+    // 1이면 조준 해제, 2면 FOV를 절반으로 줄여 2배 확대한다.
+    public void SetAimMultiplier(float multiplier)
+    {
+        _aimMultiplier = Mathf.Max(1f, multiplier);
+    }
+
+    private void UpdateAim()
+    {
+        if (_camera == null)
+        {
+            return;
+        }
+        float targetFieldOfView = _baseFieldOfView / _aimMultiplier;
+        _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, targetFieldOfView, _aimSpeed * Time.deltaTime);
     }
 
     public void SwitchView()

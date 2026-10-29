@@ -393,9 +393,6 @@ GameObject:
   - component: {fileID: 59073616}
   - component: {fileID: 59073617}
   - component: {fileID: 59073621}
-  - component: {fileID: 59073620}
-  - component: {fileID: 59073619}
-  - component: {fileID: 59073622}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -561,54 +558,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHit
   _maxHealth: 100
---- !u!114 &59073619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 59073607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cbee067b5caabe418a6a34287edd749, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShotgunWeapon
-  _hitEffectPrefabs:
-  - {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
-  - {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
-  - {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
-  - {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
-  - {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
-  _maxAmmo: 5
-  _damage: 5
-  _range: 100
-  _spreadAngle: 5
-  _fireInterval: 0.5
-  _useDistanceFalloff: 1
-  _minDamageRatio: 0.3
---- !u!114 &59073620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 59073607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 865d065d9d1257d4ca02e2eb4b047a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BombWeapon
-  _bombPrefab: {fileID: 8326617103888656890, guid: 8af6facc7c00f7f47a5fd9e01c65ecfe, type: 3}
-  _maxCount: 5
-  _throwForce: 12
-  _upForce: 4
-  _fireInterval: 0.8
-  _useCharge: 1
-  _maxChargeTime: 1.5
-  _minForceMultiplier: 0.5
-  _maxForceMultiplier: 2
-  _useFuse: 1
-  _fuseTime: 3
 --- !u!114 &59073621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -621,33 +570,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8407497bbcd55d43be55b760298b183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSwitcher
-  _gun: {fileID: 59073622}
-  _shotgun: {fileID: 59073619}
-  _bomb: {fileID: 59073620}
+  _weaponDatas:
+  - {fileID: 11400000, guid: 9ca2707b5638b2248ac9af041dd68b8f, type: 2}
+  - {fileID: 11400000, guid: d8f5fbaf1cffcf34ba2f2c2897a8e3b3, type: 2}
+  - {fileID: 11400000, guid: 9c706060c29203a449c81a05f217ee06, type: 2}
+  - {fileID: 11400000, guid: bf379d07cdac27b4eae5e1df9cd19aa1, type: 2}
+  - {fileID: 11400000, guid: f37003aa6f041af45a1c0d86760169d2, type: 2}
+  - {fileID: 11400000, guid: 4cbc6cc150566b641a64b3ada1eb0670, type: 2}
   _weaponStateText: {fileID: 1272860679}
   _bulletText: {fileID: 1739948374}
---- !u!114 &59073622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 59073607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1156e047683ee14eb2f4ece6a7251c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GunWeapon
-  _hitEffectPrefab: {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
   _reloadText: {fileID: 390032759}
   _crossHair: {fileID: 1448692661}
-  _damage: 10
-  _fireInterval: 0.5
-  _maxBulletCount: 30
-  _reloadTime: 2
-  _rotationSpeed: 360
-  _useDistanceFalloff: 1
-  _minDamageRatio: 0
+  _crossHairRotationSpeed: 360
 --- !u!1 &70189461
 GameObject:
   m_ObjectHideFlags: 0
@@ -1606,6 +1540,7 @@ MonoBehaviour:
   _recoilPitchAmount: 2
   _recoilYawAmount: 1
   _recoilRecoverySpeed: 8
+  _aimSpeed: 10
   _useFade: 1
   _fadeDuration: 0.5
 --- !u!1 &390032757
@@ -1620,7 +1555,7 @@ GameObject:
   - component: {fileID: 390032760}
   - component: {fileID: 390032759}
   m_Layer: 5
-  m_Name: ReloadText
+  m_Name: ReloadingText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1943,7 +1878,7 @@ GameObject:
   - component: {fileID: 620671127}
   - component: {fileID: 620671126}
   m_Layer: 5
-  m_Name: ReloadText
+  m_Name: ReloadButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2551,15 +2486,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.83
       objectReference: {fileID: 0}
     - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.83
       objectReference: {fileID: 0}
     - target: {fileID: 6989555022610354781, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6444,6 +6379,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 902472120309581480, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.83
+      objectReference: {fileID: 0}
     - target: {fileID: 6989555022610354781, guid: 526fd8527de9e35479e42a22ebcec4f3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

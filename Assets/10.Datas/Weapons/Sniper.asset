@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 899d91af21071174b9649c2bc22e9c8e, type: 3}
+  m_Name: Sniper
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  _type: 3
+  _category: 0
+  _damage: 50
+  _fireInterval: 0.5
+  _magazineSize: 5
+  _canReload: 1
+  _reloadTime: 2
+  _canAim: 1
+  _aimMultiplier: 2
+  _useDistanceFalloff: 0
+  _minDamageRatio: 0.3
+  _hitEffectPrefab: {fileID: 19800002, guid: 54dd9cb5740188a488b8baebbf19207c, type: 3}
+  _range: 100
+  _pelletCount: 1
+  _spreadAngle: 0
+  _recoilStrength: 1
+  _projectilePrefab: {fileID: 0}
+  _throwForce: 12
+  _upForce: 4
+  _useCharge: 0
+  _maxChargeTime: 1.5
+  _minForceMultiplier: 0.5
+  _maxForceMultiplier: 2
+  _useFuse: 0
+  _fuseTime: 3

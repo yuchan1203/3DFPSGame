@@ -1,115 +1,95 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 
 public class WeaponSwitcher : MonoBehaviour
 {
-    [SerializeField] private GunWeapon _gun;
-    [SerializeField] private ShotgunWeapon _shotgun;
-    [SerializeField] private BombWeapon _bomb;
+    [Header("무기 목록")]
+    [Tooltip("C 키로 이 순서대로 무기를 바꾼다. 새 무기는 WeaponData 에셋을 만들어 여기에 추가한다.")]
+    [SerializeField] private List<WeaponData> _weaponDatas = new List<WeaponData>();
 
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI _weaponStateText;
     [SerializeField] private TextMeshProUGUI _bulletText;
+    [SerializeField] private TextMeshProUGUI _reloadText;
+    [SerializeField] private RectTransform _crossHair;
+    [Tooltip("재장전 중 조준선 회전 속도 (도/초)")]
+    [SerializeField] private float _crossHairRotationSpeed = 360f;
 
-    private IWeapon[] _weapons;
+    private readonly List<IWeapon> _weapons = new List<IWeapon>();
+    private Animator _animator;
     private int _currentIndex = 0;
     private float _fireTimer = 0f;
     private int _shownAmmo = -1;
     private int _shownMaxAmmo = -1;
+    private bool _wasReloading = false;
 
-    private IWeapon CurrentWeapon => _weapons[_currentIndex];
+    private IWeapon CurrentWeapon => _weapons.Count > 0 ? _weapons[_currentIndex] : null;
 
-    public int CurrentAmmo => CurrentWeapon.CurrentAmmo;
-    public int CurrentMaxAmmo => CurrentWeapon.MaxAmmo;
+    public int CurrentAmmo => CurrentWeapon != null ? CurrentWeapon.CurrentAmmo : 0;
+    public int CurrentMaxAmmo => CurrentWeapon != null ? CurrentWeapon.MaxAmmo : 0;
 
     private void Awake()
     {
-        if (_gun == null)
+        _animator = GetComponentInChildren<Animator>();
+
+        foreach (WeaponData data in _weaponDatas)
         {
-            _gun = GetComponent<GunWeapon>();
-            if (_gun == null)
+            if (data == null)
             {
-                _gun = gameObject.AddComponent<GunWeapon>();
+                GameLogger.LogWarning("WeaponSwitcher: 비어 있는 무기 데이터 칸이 있습니다.");
+                continue;
             }
-        }
-        if (_shotgun == null)
-        {
-            _shotgun = GetComponent<ShotgunWeapon>();
-            if (_shotgun == null)
+            IWeapon weapon = WeaponBase.Create(data);
+            if (weapon != null)
             {
-                _shotgun = gameObject.AddComponent<ShotgunWeapon>();
-            }
-        }
-        if (_bomb == null)
-        {
-            _bomb = GetComponent<BombWeapon>();
-            if (_bomb == null)
-            {
-                _bomb = gameObject.AddComponent<BombWeapon>();
+                _weapons.Add(weapon);
             }
         }
 
-        _weapons = new IWeapon[] { _gun, _shotgun, _bomb };
+        if (_weapons.Count == 0)
+        {
+            GameLogger.LogError("WeaponSwitcher: 사용할 무기 데이터가 없습니다.");
+        }
+
+        if (_reloadText != null)
+        {
+            _reloadText.gameObject.SetActive(false);
+        }
         UpdateWeaponStateText();
         UpdateBulletText();
     }
 
     public void Reload()
     {
+        if (CurrentWeapon == null)
+        {
+            return;
+        }
         CurrentWeapon.Reload();
-    }
-
-    private void HandleBombCharge(bool isPointerOverUI)
-    {
-        if (Input.GetButtonDown("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
-        {
-            _bomb.BeginCharge();
-        }
-        _bomb.UpdateCharge(Time.deltaTime);
-        if (Input.GetButtonUp("Fire1") && _bomb.ReleaseCharge())
-        {
-            _fireTimer = _bomb.FireInterval;
-        }
     }
 
     public void ChangeWeapon()
     {
-        _bomb.CancelCharge();
-        _currentIndex = (_currentIndex + 1) % _weapons.Length;
+        if (CurrentWeapon == null)
+        {
+            return;
+        }
+        CurrentWeapon.OnUnequip();
+        _currentIndex = (_currentIndex + 1) % _weapons.Count;
         UpdateWeaponStateText();
         UpdateBulletText();
-    }
-
-    private void UpdateWeaponStateText()
-    {
-        if (_weaponStateText == null)
-        {
-            return;
-        }
-        _weaponStateText.text = "현재 무기: " + CurrentWeapon.State.ToString();
-    }
-
-    private void UpdateBulletText()
-    {
-        if (_bulletText == null)
-        {
-            return;
-        }
-        int ammo = CurrentWeapon.CurrentAmmo;
-        int maxAmmo = CurrentWeapon.MaxAmmo;
-        // 값이 바뀌지 않았으면 문자열을 새로 만들지 않는다.
-        if (ammo == _shownAmmo && maxAmmo == _shownMaxAmmo)
-        {
-            return;
-        }
-        _shownAmmo = ammo;
-        _shownMaxAmmo = maxAmmo;
-        _bulletText.text = "Bullet: " + ammo + " / " + maxAmmo;
     }
 
     private void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.GameState != GameState.Playing)
+        {
+            return;
+        }
+
+        if (CurrentWeapon == null)
         {
             return;
         }
@@ -124,22 +104,113 @@ public class WeaponSwitcher : MonoBehaviour
             Reload();
         }
 
+        CurrentWeapon.Tick(Time.deltaTime);
         _fireTimer -= Time.deltaTime;
         bool isPointerOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
 
-        if (ReferenceEquals(CurrentWeapon, _bomb) && _bomb.UseCharge)
+        if (CurrentWeapon is IChargeable chargeable && chargeable.UseCharge)
         {
-            HandleBombCharge(isPointerOverUI);
-            UpdateBulletText();
-            return;
+            HandleCharge(chargeable, isPointerOverUI);
+        }
+        else if (Input.GetButton("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
+        {
+            if (CurrentWeapon.Shoot())
+            {
+                _fireTimer = CurrentWeapon.FireInterval;
+                OnShot();
+            }
         }
 
-        if (Input.GetButton("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
+        UpdateAim();
+        UpdateReloadUI();
+        UpdateBulletText();
+    }
+
+    private void HandleCharge(IChargeable chargeable, bool isPointerOverUI)
+    {
+        if (Input.GetButtonDown("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
+        {
+            chargeable.BeginCharge();
+        }
+        chargeable.UpdateCharge(Time.deltaTime);
+        if (Input.GetButtonUp("Fire1") && chargeable.ReleaseCharge())
         {
             _fireTimer = CurrentWeapon.FireInterval;
-            CurrentWeapon.Shoot();
+        }
+    }
+
+    private void OnShot()
+    {
+        if (CurrentWeapon.Data.Category != WeaponCategory.Gun)
+        {
+            return;
+        }
+        if (_animator != null && _animator.GetFloat(AnimatorParams.MoveMotion) == 0f)
+        {
+            _animator.SetTrigger(AnimatorParams.Attack);
+        }
+    }
+
+    private void UpdateAim()
+    {
+        CameraViewSwitcher viewSwitcher = CameraViewSwitcher.Instance;
+        if (viewSwitcher == null)
+        {
+            return;
+        }
+        WeaponData data = CurrentWeapon.Data;
+        bool isAiming = data.CanAim && Input.GetButton("Fire2");
+        viewSwitcher.SetAimMultiplier(isAiming ? data.AimMultiplier : 1f);
+    }
+
+    private void UpdateReloadUI()
+    {
+        bool isReloading = CurrentWeapon.IsReloading;
+        if (isReloading && _crossHair != null)
+        {
+            _crossHair.Rotate(0f, 0f, -_crossHairRotationSpeed * Time.deltaTime);
         }
 
-        UpdateBulletText();
+        // 상태가 바뀔 때만 UI를 켜고 끈다.
+        if (isReloading == _wasReloading)
+        {
+            return;
+        }
+        _wasReloading = isReloading;
+        if (_reloadText != null)
+        {
+            _reloadText.gameObject.SetActive(isReloading);
+        }
+        if (isReloading == false && _crossHair != null)
+        {
+            _crossHair.localEulerAngles = Vector3.zero;
+        }
+    }
+
+    private void UpdateWeaponStateText()
+    {
+        if (_weaponStateText == null || CurrentWeapon == null)
+        {
+            return;
+        }
+        _weaponStateText.text = "현재 무기: " + CurrentWeapon.Data.Type.ToString();
+    }
+
+    private void UpdateBulletText()
+    {
+        if (_bulletText == null || CurrentWeapon == null)
+        {
+            return;
+        }
+        int ammo = CurrentWeapon.CurrentAmmo;
+        int maxAmmo = CurrentWeapon.MaxAmmo;
+        // 값이 바뀌지 않았으면 문자열을 새로 만들지 않는다.
+        if (ammo == _shownAmmo && maxAmmo == _shownMaxAmmo)
+        {
+            return;
+        }
+        _shownAmmo = ammo;
+        _shownMaxAmmo = maxAmmo;
+        _bulletText.text = "Bullet: " + ammo + " / " + maxAmmo;
     }
 }

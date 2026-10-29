@@ -4,29 +4,23 @@ public class BombProjectile : MonoBehaviour
 {
     [SerializeField] private ParticleSystem _explosionEffectPrefab;
     [SerializeField] private float _explosionRange = 4.5f;
-    [SerializeField] private float _damage = 100f;
 
-    [Header("거리 비례 대미지 감소")]
-    [Tooltip("켜면 폭발 중심에서 멀수록 대미지가 줄어든다")]
-    [SerializeField] private bool _useDistanceFalloff = false;
-    [Tooltip("폭발 범위 끝에서 적용되는 대미지 비율 (0~1)")]
-    [SerializeField, Range(0f, 1f)] private float _minDamageRatio = 0.3f;
-
-    private bool _useFuse;
+    // 대미지와 폭발 방식은 던진 무기의 WeaponData를 따른다.
+    private WeaponData _data;
     private bool _exploded;
 
-    public void Setup(bool useFuse, float fuseTime)
+    public void Setup(WeaponData data)
     {
-        _useFuse = useFuse;
-        if (_useFuse)
+        _data = data;
+        if (_data.UseFuse)
         {
-            Invoke(nameof(Explode), fuseTime);
+            Invoke(nameof(Explode), _data.FuseTime);
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (_useFuse)
+        if (_data == null || _data.UseFuse)
         {
             return;
         }
@@ -35,7 +29,7 @@ public class BombProjectile : MonoBehaviour
 
     private void Explode()
     {
-        if (_exploded)
+        if (_exploded || _data == null)
         {
             return;
         }
@@ -56,11 +50,11 @@ public class BombProjectile : MonoBehaviour
         foreach (var col in colliders)
         {
             Vector3 closestPoint = col.ClosestPoint(transform.position);
-            float damage = _damage;
-            if (_useDistanceFalloff)
+            float damage = _data.Damage;
+            if (_data.UseDistanceFalloff)
             {
                 float distance = Vector3.Distance(transform.position, closestPoint);
-                damage = DamageFalloff.Calculate(_damage, distance, _explosionRange, _minDamageRatio);
+                damage = DamageFalloff.Calculate(_data.Damage, distance, _explosionRange, _data.MinDamageRatio);
             }
             DamageInfo damageInfo = new DamageInfo
             {
