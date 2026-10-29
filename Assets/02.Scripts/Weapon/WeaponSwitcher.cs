@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using TMPro;
 
 public class WeaponSwitcher : MonoBehaviour
@@ -14,6 +15,7 @@ public class WeaponSwitcher : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _bulletText;
     [SerializeField] private TextMeshProUGUI _reloadText;
     [SerializeField] private RectTransform _crossHair;
+    [SerializeField] private Image _weaponStateImage;
     [Tooltip("재장전 중 조준선 회전 속도 (도/초)")]
     [SerializeField] private float _crossHairRotationSpeed = 360f;
 
@@ -24,6 +26,7 @@ public class WeaponSwitcher : MonoBehaviour
     private int _shownAmmo = -1;
     private int _shownMaxAmmo = -1;
     private bool _wasReloading = false;
+    private string _shownReloadMessage = null;
 
     private IWeapon CurrentWeapon => _weapons.Count > 0 ? _weapons[_currentIndex] : null;
 
@@ -171,20 +174,41 @@ public class WeaponSwitcher : MonoBehaviour
             _crossHair.Rotate(0f, 0f, -_crossHairRotationSpeed * Time.deltaTime);
         }
 
-        // 상태가 바뀔 때만 UI를 켜고 끈다.
-        if (isReloading == _wasReloading)
-        {
-            return;
-        }
-        _wasReloading = isReloading;
-        if (_reloadText != null)
-        {
-            _reloadText.gameObject.SetActive(isReloading);
-        }
-        if (isReloading == false && _crossHair != null)
+        if (isReloading == false && _wasReloading && _crossHair != null)
         {
             _crossHair.localEulerAngles = Vector3.zero;
         }
+        _wasReloading = isReloading;
+
+        // 문구가 바뀔 때만 UI를 갱신한다.
+        string message = GetReloadMessage(isReloading);
+        if (message == _shownReloadMessage)
+        {
+            return;
+        }
+        _shownReloadMessage = message;
+        if (_reloadText != null)
+        {
+            _reloadText.gameObject.SetActive(message != null);
+            if (message != null)
+            {
+                _reloadText.text = message;
+            }
+        }
+    }
+
+    // 표시할 문구가 없으면 null을 반환한다.
+    private string GetReloadMessage(bool isReloading)
+    {
+        if (isReloading)
+        {
+            return "Reloading...";
+        }
+        if (CurrentWeapon.CurrentAmmo > 0)
+        {
+            return null;
+        }
+        return CurrentWeapon.Data.CanReload ? "재장전이 필요합니다" : "폭탄을 모두 소모했습니다";
     }
 
     private void UpdateWeaponStateText()
@@ -192,6 +216,10 @@ public class WeaponSwitcher : MonoBehaviour
         if (_weaponStateText == null || CurrentWeapon == null)
         {
             return;
+        }
+        if (_weaponStateImage != null)
+        {
+            _weaponStateImage.sprite = CurrentWeapon.Data.Icon;
         }
         _weaponStateText.text = "현재 무기: " + CurrentWeapon.Data.Type.ToString();
     }

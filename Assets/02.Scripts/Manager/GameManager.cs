@@ -47,6 +47,10 @@ public class GameManager : MonoBehaviour
 
     private void TogglePause()
     {
+        if (_stateText == null)
+        {
+            return;
+        }
         if (_gameState == GameState.Playing)
         {
             _gameState = GameState.Pause;

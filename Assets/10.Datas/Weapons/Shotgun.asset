@@ -37,3 +37,4 @@ MonoBehaviour:
   _maxForceMultiplier: 2
   _useFuse: 0
   _fuseTime: 3
+  _icon: {fileID: 21300000, guid: 45c4293cc61af5441b22ae3c4064b307, type: 3}

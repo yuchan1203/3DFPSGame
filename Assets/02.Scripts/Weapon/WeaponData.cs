@@ -57,6 +57,9 @@ public class WeaponData : ScriptableObject
     [SerializeField] private bool _useFuse = false;
     [SerializeField] private float _fuseTime = 3f;
 
+    [Header("UI")]
+    [SerializeField] private Sprite _icon;
+
     public WeaponType Type => _type;
     public WeaponCategory Category => _category;
 
@@ -90,6 +93,8 @@ public class WeaponData : ScriptableObject
 
     public bool UseFuse => _useFuse;
     public float FuseTime => _fuseTime;
+
+    public Sprite Icon => _icon;
 
     private void OnValidate()
     {

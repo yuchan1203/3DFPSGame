@@ -23,8 +23,14 @@ public abstract class WeaponBase : IWeapon
 
     public bool Shoot()
     {
-        if (_isReloading || _ammo <= 0)
+        if (_isReloading)
         {
+            return false;
+        }
+
+        if (_ammo <= 0)
+        {
+            // 
             return false;
         }
         if (Fire() == false)
