@@ -7,4 +7,5 @@ public static class AnimatorParams
     public static readonly int Attack = Animator.StringToHash("Attack");
     public static readonly int Hit = Animator.StringToHash("Hit");
     public static readonly int Death = Animator.StringToHash("Death");
+    public static readonly int Melee = Animator.StringToHash("Melee");
 }

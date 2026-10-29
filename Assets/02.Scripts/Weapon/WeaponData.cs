@@ -57,6 +57,13 @@ public class WeaponData : ScriptableObject
     [SerializeField] private bool _useFuse = false;
     [SerializeField] private float _fuseTime = 3f;
 
+    [Header("근접 전용")]
+    [Tooltip("플레이어 앞쪽으로 판정 구의 중심까지 거리")]
+    [SerializeField] private float _meleeRange = 1.2f;
+    [SerializeField] private float _meleeRadius = 1f;
+    [Tooltip("공격 버튼을 누른 뒤 실제로 맞는 시점 (초). 휘두르는 동작에 맞춘다")]
+    [SerializeField] private float _meleeHitDelay = 0.45f;
+
     [Header("UI")]
     [SerializeField] private Sprite _icon;
 
@@ -94,6 +101,10 @@ public class WeaponData : ScriptableObject
     public bool UseFuse => _useFuse;
     public float FuseTime => _fuseTime;
 
+    public float MeleeRange => _meleeRange;
+    public float MeleeRadius => _meleeRadius;
+    public float MeleeHitDelay => _meleeHitDelay;
+
     public Sprite Icon => _icon;
 
     private void OnValidate()
@@ -103,5 +114,7 @@ public class WeaponData : ScriptableObject
         _reloadTime = Mathf.Max(0f, _reloadTime);
         _aimMultiplier = Mathf.Max(1f, _aimMultiplier);
         _pelletCount = Mathf.Max(1, _pelletCount);
+        _meleeRadius = Mathf.Max(0f, _meleeRadius);
+        _meleeHitDelay = Mathf.Max(0f, _meleeHitDelay);
     }
 }

@@ -37,6 +37,10 @@ MonoBehaviour:
     - 3fd215b1082fa91479de36986ad9728b
     - 399d525f7b617944bbe532de90dea94b
     - f8f0c29024f6523459b6c6f6bcba10fe
+    - 2a79dafbf7cf4ae4daaa19f120a9aef0
+    - bb881ec70db7723469dc7f73ff149530
+    - 53c11813e202fb64d95d8e2037aa37be
+    - e11d2522ba2151444a866683f13fb6c0
     values:
     - iconNameOrGuid: 
       colorIndex: 8
@@ -112,6 +116,22 @@ MonoBehaviour:
       isColorRecursive: 0
     - iconNameOrGuid: 
       colorIndex: 6
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 1
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 1
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 1
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 1
       isIconRecursive: 0
       isColorRecursive: 0
     - iconNameOrGuid: 

@@ -6,4 +6,5 @@ public enum WeaponType
     Sniper,
     Gatling,
     Firebomb,
+    Sword,
 }

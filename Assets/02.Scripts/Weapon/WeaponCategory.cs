@@ -3,4 +3,5 @@ public enum WeaponCategory
 {
     Gun,        // 레이캐스트 즉시 판정 (HitscanWeapon)
     Projectile, // 투사체 발사 (ProjectileWeapon)
+    Melee,      // 앞쪽 범위 근접 판정 (MeleeWeapon)
 }

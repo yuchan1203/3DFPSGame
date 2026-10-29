@@ -1,3 +1,5 @@
+using UnityEngine;
+
 // 탄약과 재장전처럼 모든 무기가 공통으로 가지는 동작. 발사 방식은 자식 클래스가 정한다.
 public abstract class WeaponBase : IWeapon
 {
@@ -10,6 +12,7 @@ public abstract class WeaponBase : IWeapon
     public WeaponData Data => _data;
     public int CurrentAmmo => _ammo;
     public int MaxAmmo => _data.MagazineSize;
+    public virtual bool UsesAmmo => true;
     public bool CanReload => _data.CanReload && _isReloading == false && _ammo < MaxAmmo;
     public bool IsReloading => _isReloading;
     public float ReloadRatio => _isReloading && _data.ReloadTime > 0f ? _reloadTimer / _data.ReloadTime : 0f;
@@ -28,16 +31,19 @@ public abstract class WeaponBase : IWeapon
             return false;
         }
 
-        if (_ammo <= 0)
+        if (UsesAmmo && _ammo <= 0)
         {
-            // 
+            //
             return false;
         }
         if (Fire() == false)
         {
             return false;
         }
-        _ammo--;
+        if (UsesAmmo)
+        {
+            _ammo--;
+        }
         return true;
     }
 
@@ -80,7 +86,8 @@ public abstract class WeaponBase : IWeapon
         _reloadTimer = 0f;
     }
 
-    public static IWeapon Create(WeaponData data)
+    // owner: 무기를 든 캐릭터. 근접 무기는 이 위치와 방향을 기준으로 판정한다.
+    public static IWeapon Create(WeaponData data, Transform owner)
     {
         switch (data.Category)
         {
@@ -88,6 +95,8 @@ public abstract class WeaponBase : IWeapon
                 return new HitscanWeapon(data);
             case WeaponCategory.Projectile:
                 return new ProjectileWeapon(data);
+            case WeaponCategory.Melee:
+                return new MeleeWeapon(data, owner);
             default:
                 GameLogger.LogError($"{data.Category} 유형의 무기 클래스가 없습니다.");
                 return null;

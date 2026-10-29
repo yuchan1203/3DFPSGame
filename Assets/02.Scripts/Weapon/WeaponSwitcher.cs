@@ -19,7 +19,11 @@ public class WeaponSwitcher : MonoBehaviour
     [Tooltip("재장전 중 조준선 회전 속도 (도/초)")]
     [SerializeField] private float _crossHairRotationSpeed = 360f;
 
+    private const int NoAmmoDisplay = -2;
+
     private readonly List<IWeapon> _weapons = new List<IWeapon>();
+    // F 키 빠른 근접 공격에 쓰는 무기. 목록의 첫 근접 무기다.
+    private IWeapon _meleeWeapon;
     private Animator _animator;
     private int _currentIndex = 0;
     private float _fireTimer = 0f;
@@ -44,10 +48,14 @@ public class WeaponSwitcher : MonoBehaviour
                 GameLogger.LogWarning("WeaponSwitcher: 비어 있는 무기 데이터 칸이 있습니다.");
                 continue;
             }
-            IWeapon weapon = WeaponBase.Create(data);
+            IWeapon weapon = WeaponBase.Create(data, transform);
             if (weapon != null)
             {
                 _weapons.Add(weapon);
+                if (_meleeWeapon == null && data.Category == WeaponCategory.Melee)
+                {
+                    _meleeWeapon = weapon;
+                }
             }
         }
 
@@ -108,20 +116,26 @@ public class WeaponSwitcher : MonoBehaviour
         }
 
         CurrentWeapon.Tick(Time.deltaTime);
+        // 다른 무기를 든 채 F 키로 휘두른 공격도 판정이 나가야 한다.
+        if (_meleeWeapon != null && _meleeWeapon != CurrentWeapon)
+        {
+            _meleeWeapon.Tick(Time.deltaTime);
+        }
         _fireTimer -= Time.deltaTime;
         bool isPointerOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+
+        if (Input.GetKeyDown(KeyCode.F) && _meleeWeapon != null)
+        {
+            TryAttack(_meleeWeapon);
+        }
 
         if (CurrentWeapon is IChargeable chargeable && chargeable.UseCharge)
         {
             HandleCharge(chargeable, isPointerOverUI);
         }
-        else if (Input.GetButton("Fire1") && !isPointerOverUI && _fireTimer <= 0f)
+        else if (Input.GetButton("Fire1") && !isPointerOverUI)
         {
-            if (CurrentWeapon.Shoot())
-            {
-                _fireTimer = CurrentWeapon.FireInterval;
-                OnShot();
-            }
+            TryAttack(CurrentWeapon);
         }
 
         UpdateAim();
@@ -142,16 +156,34 @@ public class WeaponSwitcher : MonoBehaviour
         }
     }
 
-    private void OnShot()
+    private void TryAttack(IWeapon weapon)
     {
-        if (CurrentWeapon.Data.Category != WeaponCategory.Gun)
+        if (_fireTimer > 0f)
         {
             return;
         }
-        // 쏘는 동작은 UpperBody 레이어에서 상체에만 재생되므로 달리면서도 보낸다.
-        if (_animator != null)
+        if (weapon.Shoot())
         {
-            _animator.SetTrigger(AnimatorParams.Attack);
+            _fireTimer = weapon.FireInterval;
+            OnShot(weapon);
+        }
+    }
+
+    private void OnShot(IWeapon weapon)
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+        // 쏘기·휘두르기 동작은 UpperBody 레이어에서 상체에만 재생되므로 달리면서도 보낸다.
+        switch (weapon.Data.Category)
+        {
+            case WeaponCategory.Gun:
+                _animator.SetTrigger(AnimatorParams.Attack);
+                break;
+            case WeaponCategory.Melee:
+                _animator.SetTrigger(AnimatorParams.Melee);
+                break;
         }
     }
 
@@ -220,7 +252,9 @@ public class WeaponSwitcher : MonoBehaviour
         }
         if (_weaponStateImage != null)
         {
+            // 아이콘이 없으면 흰 사각형 대신 이미지를 숨긴다.
             _weaponStateImage.sprite = CurrentWeapon.Data.Icon;
+            _weaponStateImage.enabled = CurrentWeapon.Data.Icon != null;
         }
         _weaponStateText.text = "현재 무기: " + CurrentWeapon.Data.Type.ToString();
     }
@@ -229,6 +263,17 @@ public class WeaponSwitcher : MonoBehaviour
     {
         if (_bulletText == null || CurrentWeapon == null)
         {
+            return;
+        }
+        if (CurrentWeapon.UsesAmmo == false)
+        {
+            if (_shownAmmo == NoAmmoDisplay)
+            {
+                return;
+            }
+            _shownAmmo = NoAmmoDisplay;
+            _shownMaxAmmo = NoAmmoDisplay;
+            _bulletText.text = "Bullet: -";
             return;
         }
         int ammo = CurrentWeapon.CurrentAmmo;
