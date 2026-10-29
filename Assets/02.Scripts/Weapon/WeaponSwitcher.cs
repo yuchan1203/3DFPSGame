@@ -148,7 +148,8 @@ public class WeaponSwitcher : MonoBehaviour
         {
             return;
         }
-        if (_animator != null && _animator.GetFloat(AnimatorParams.MoveMotion) == 0f)
+        // 쏘는 동작은 UpperBody 레이어에서 상체에만 재생되므로 달리면서도 보낸다.
+        if (_animator != null)
         {
             _animator.SetTrigger(AnimatorParams.Attack);
         }

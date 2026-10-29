@@ -5,4 +5,6 @@ public static class AnimatorParams
 {
     public static readonly int MoveMotion = Animator.StringToHash("MoveMotion");
     public static readonly int Attack = Animator.StringToHash("Attack");
+    public static readonly int Hit = Animator.StringToHash("Hit");
+    public static readonly int Death = Animator.StringToHash("Death");
 }

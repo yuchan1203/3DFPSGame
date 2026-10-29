@@ -11,7 +11,14 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private CharacterController _characterController;
 
+    [Header("애니메이션")]
+    [Tooltip("MoveMotion이 목표 값까지 바뀌는 데 걸리는 시간(초). 서기·달리기·질주가 부드럽게 섞인다")]
+    [SerializeField] private float _moveMotionDampTime = 0.1f;
+
     private const float Gravity = -20f;
+    // 블렌드 트리 Threshold: 서기 0, 달리기 1, 질주 2
+    private const float RunMotion = 1f;
+    private const float SprintMotion = 2f;
     private const int MaxJumps = 2;
     private const float MaxStamina = 100f;
 
@@ -78,10 +85,6 @@ public class PlayerMove : MonoBehaviour
             direction = new Vector3(h, 0f, v).normalized;
             direction = transform.TransformDirection(direction);
         }
-        if (_animator != null)
-        {
-            _animator.SetFloat(AnimatorParams.MoveMotion, direction.magnitude);
-        }
         if (_characterController.isGrounded == false)
         {
             _yVelocity += Gravity * Time.deltaTime;
@@ -105,6 +108,11 @@ public class PlayerMove : MonoBehaviour
         {
             currentSpeed = _sprintSpeed;
             SetStamina(_stamina - requiredStamina);
+        }
+        if (_animator != null)
+        {
+            float targetMotion = direction.magnitude * (isSprint ? SprintMotion : RunMotion);
+            _animator.SetFloat(AnimatorParams.MoveMotion, targetMotion, _moveMotionDampTime, Time.deltaTime);
         }
         Vector3 velocity = direction * currentSpeed;
         velocity.y = _yVelocity;

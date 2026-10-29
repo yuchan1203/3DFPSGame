@@ -507,6 +507,7 @@ MonoBehaviour:
   _sprintCost: 20
   _jumpCost: 20
   _characterController: {fileID: 59073614}
+  _moveMotionDampTime: 0.1
 --- !u!143 &59073614
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1500,7 +1501,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.22
+  near clip plane: 0.01
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -1594,7 +1595,7 @@ MonoBehaviour:
   _viewStateText: {fileID: 1318869091}
   _target: {fileID: 59073611}
   _views:
-  - positionOffset: {x: 0, y: 0.5, z: 0}
+  - positionOffset: {x: 0.1, y: 0.5, z: 0.5}
     rotationEuler: {x: 0, y: 0, z: 0}
     inheritPlayerYaw: 1
   - positionOffset: {x: 0, y: 3, z: -5}
@@ -4280,7 +4281,7 @@ Transform:
   m_GameObject: {fileID: 1275397303}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.117, y: 0.533, z: 0.2}
+  m_LocalPosition: {x: 0.117, y: 0.553, z: 0.373}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
